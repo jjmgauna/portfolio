@@ -1,8 +1,8 @@
 # PORTFOLIO JUAN JOSÉ M. GAUNA #
-================================
+
 
 ## Descripción ## 
------------------
+
 
 
 Business Intelligence & Data Engineering
