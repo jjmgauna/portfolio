@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  cowrie:
+    image: cowrie/cowrie
+    container_name: cowrie-honeypot
+    ports:
+      - "2222:2222" # Mapea el puerto del host al puerto del contenedor
+      - "2223:2223" # Opcional: para el puerto telnet
+    volumes:
+      - ./cowrie_data/etc:/cowrie/cowrie-git/etc # Persiste la configuración
+      - ./cowrie_data/var/log:/cowrie/cowrie-git/var/log # Persiste los logs
+    restart: always
