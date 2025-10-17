@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rosario Global Connect (RGC) - MVP</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .stream-player { 
+            /* Altura adaptativa al 16:9 y sensible al viewport */
+            aspect-ratio: 16 / 9; 
+            width: 100%;
+            height: auto;
+            max-height: 60vh;
+            min-height: 250px;
+        }
+        /* Estilos personalizados para el branding de RGC */
+        .rcg-primary { background-color: #E30613; }
+        .rcg-secondary { background-color: #00A859; }
+        .program-card { transition: transform 0.2s; }
+        .program-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .nav-active { border-bottom: 3px solid white; padding-bottom: 2px; }
+        .content-section { display: none; }
+        .interactive-button { transition: background-color 0.3s, transform 0.1s; }
+        .interactive-button:active { transform: scale(0.98); }
+        .course-card { transition: box-shadow 0.3s; }
+        .course-card:hover { box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body>
+
+    <!-- Firebase SDKs - Configuración Inicial -->
+    <!-- ESTE CÓDIGO PERMITE LA INTEGRACIÓN DE FIREBASE PARA LA PERSISTENCIA DE DATOS EN EL FUTURO -->
+    <script type="module">
+        // Importaciones de Firebase (DEBEN estar al inicio del módulo)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Variables globales MANDATORIAS proporcionadas por el entorno de Canvas
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        if (firebaseConfig) {
+            // Inicialización de Firebase
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            const auth = getAuth(app);
+            
+            // 1. Autenticación
+            async function authenticate() {
+                try {
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                        console.log("Usuario autenticado con token personalizado.");
+                    } else {
+                        await signInAnonymously(auth);
+                        console.log("Usuario autenticado anónimamente.");
+                    }
+                } catch (error) {
+                    console.error("Error durante la autenticación de Firebase:", error);
+                }
+            }
+
+            // 2. Listener de estado de autenticación (Para obtener el userId)
+            onAuthStateChanged(auth, (user) => {
+                // Genera un ID de usuario basado en la autenticación o uno aleatorio.
+                const userId = user ? user.uid : crypto.randomUUID();
+                console.log("User ID:", userId);
+                // Aquí se podrían iniciar las llamadas a onSnapshot para la data
+            });
+
+            authenticate();
+        } else {
+            console.warn("Configuración de Firebase no disponible.");
+        }
+    </script>
+
+    <!-- Barra de Navegación (Header) -->
+    <header class="rcg-primary shadow-lg p-4 text-white">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-extrabold tracking-tight">RGC <span class="text-xs ml-1">Rosario Global Connect</span></h1>
+            <nav class="hidden md:flex space-x-6 font-semibold">
+                <a href="#" class="nav-item hover:text-gray-300 nav-active" data-content="stream" onclick="changeContent('stream', this)">STREAM 24/7</a>
+                <a href="#" class="nav-item hover:text-gray-300" data-content="vod" onclick="changeContent('vod', this)">VOD / Archivo</a>
+                <a href="#" class="nav-item hover:text-gray-300" data-content="srn" onclick="changeContent('srn', this)">Reportero SRN</a>
+                <a href="#" class="nav-item hover:text-gray-300" data-content="edu" onclick="changeContent('edu', this)">EDUCACIÓN</a>
+                <a href="#" class="hover:text-gray-300 bg-white text-rcg-primary px-3 py-1 rounded-full shadow-md">Iniciar Sesión</a>
+            </nav>
+            <button class="md:hidden text-white text-2xl">☰</button>
+        </div>
+    </header>
+
+    <!-- Contenido Principal: Reproductor y Parrilla -->
+    <main class="container mx-auto p-4 md:p-8">
+        
+        <!-- SECCIÓN 1: STREAM 24/7 (Default) -->
+        <div id="stream-content" class="content-section grid grid-cols-1 lg:grid-cols-3 gap-8" style="display: grid;">
+            
+            <!-- Columna Principal: Reproductor de Streaming con YouTube Embebido -->
+            <section class="lg:col-span-2">
+                <div id="player-container" class="stream-player bg-black rounded-xl overflow-hidden shadow-2xl relative">
+                    <!-- YouTube Embed: Video que simula un Reporte de Noticias Local (Rosario) -->
+                    <!-- ID de video: 7l5Jqj_2s0g (Unboxing de un producto)
+                         Lo usaremos como un reporte de 'innovación tecnológica' para que sea más creíble que el loop ambiental.
+                         El parámetro loop=1, autoplay=1, mute=1 es clave para simular el 24/7. -->
+                    <iframe 
+                        width="100%" 
+                        height="100%" 
+                        src="https://www.youtube.com/embed/7l5Jqj_2s0g?autoplay=1&mute=1&controls=1&loop=1&playlist=7l5Jqj_2s0g" 
+                        title="Simulación de Stream RGC - Reporte de Noticias Local" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen 
+                        class="absolute inset-0"
+                    ></iframe>
+                    <!-- Overlay para mostrar título y estado LIVE -->
+                    <div class="absolute inset-0 flex items-end p-6 bg-gradient-to-t from-black/80 to-transparent">
+                        <div class="text-white">
+                            <span class="text-rcg-secondary text-base font-semibold block mb-1">EN VIVO AHORA</span>
+                            <p id="current-program-title" class="text-4xl font-extrabold">Tecnología en el Litoral: Tendencias e Innovación</p>
+                            <div class="mt-1 text-lg">
+                                <span class="bg-red-600 px-3 py-1 rounded-full text-sm font-semibold">LIVE</span>
+                                <span class="ml-4 text-gray-400">00:00 - 06:00 hs (Bloque Central)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barra de Interacción y Monetización -->
+                <div class="flex flex-wrap justify-around bg-gray-100 p-4 rounded-xl shadow-inner mt-4 space-x-2 space-y-2 md:space-y-0">
+                    <button onclick="simulateDonationDirect()" class="interactive-button flex-1 min-w-[150px] bg-yellow-500 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-yellow-600">
+                        ⭐ DONACIONES (Apoya RGC)
+                    </button>
+                    <button onclick="simulateContests()" class="interactive-button flex-1 min-w-[150px] bg-blue-500 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-600">
+                        🏆 SORTEOS Y CONCURSOS
+                    </button>
+                    <button onclick="simulateSFC()" class="interactive-button flex-1 min-w-[150px] rcg-secondary text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-green-700">
+                        📣 MICRO-PATROCINIOS (SFC)
+                    </button>
+                </div>
+
+                <!-- Módulo Innovador: Suscripción Fraccionada de Contenido (SFC) - Detalle -->
+                <div id="sfc-module" class="bg-white p-6 rounded-xl shadow-lg mt-8 border-t-4 border-rcg-secondary">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">📢 Micro-Patrocinios (SFC): Tu Marca en RGC</h2>
+                    <p class="text-gray-600 mb-4">Con SFC, puedes patrocinar el contenido que amas por solo $5 USD. Haz que tu negocio, idea o saludo aparezca en vivo durante 5 minutos del segmento.</p>
+
+                    <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
+                        <div class="flex-1 p-4 border border-gray-200 rounded-lg">
+                            <h3 class="font-semibold text-lg mb-2">Próximo Segmento Libre:</h3>
+                            <p class="text-sm text-gray-500">Programa: **Pulso Político** | Tema: Debate de Obras Públicas</p>
+                            <p class="text-2xl font-extrabold text-rcg-primary mt-2">$5 USD <span class="text-base font-normal text-gray-500">/ 5 minutos</span></p>
+                        </div>
+                        <div class="flex-1 flex flex-col justify-center">
+                            <button onclick="simulateSFC()" class="rcg-primary text-white font-bold py-3 px-6 rounded-full transition duration-300 hover:bg-red-700 shadow-xl">
+                                ¡Quiero Patrocinar este Segmento!
+                            </button>
+                            <p class="text-xs text-center text-gray-400 mt-2">Financiación impulsada por la comunidad y micro-empresarios.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Columna Derecha: Programación -->
+            <aside class="lg:col-span-1">
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Programación (Rosario, GMT-3)</h2>
+                    
+                    <ul id="schedule-list" class="space-y-3 max-h-96 overflow-y-auto">
+                        <!-- Items de la Parrilla generados por JS -->
+                    </ul>
+
+                    <p class="mt-4 text-sm text-gray-500">Horarios sujetos a cambios según cobertura de noticias de último momento.</p>
+                </div>
+                
+                <!-- Publicidad Simulación -->
+                <div class="mt-6 p-4 rcg-secondary text-white rounded-xl text-center shadow-lg">
+                    <p class="font-bold text-xl mb-1">Anuncio Geotargeteado</p>
+                    <p class="text-sm">Publicidad segmentada para Barrios del Centro. Contrata tu pauta en RGC.</p>
+                </div>
+            </aside>
+        </div>
+
+        <!-- SECCIÓN 2: VOD / ARCHIVO -->
+        <div id="vod-content" class="content-section hidden">
+            <h2 class="text-3xl font-extrabold text-gray-800 mb-6">Archivo VOD Curado - Programas Premium</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Tarjeta de Programa 1 -->
+                <div class="program-card bg-white rounded-xl shadow-lg overflow-hidden border-t-4 border-green-500">
+                    <div class="p-4">
+                        <p class="text-xs font-semibold text-green-600 mb-1">SALUD AL DÍA</p>
+                        <h3 class="font-bold text-lg mb-2">Mitos y Verdades de la Vacunación Infantil</h3>
+                        <p class="text-sm text-gray-500">Episodio 12. Con la Dra. Ana López del Hospital de Niños de Rosario.</p>
+                        <button class="mt-3 text-sm font-semibold text-rcg-primary hover:text-red-700">Ver Ahora →</button>
+                    </div>
+                </div>
+                <!-- Tarjeta de Programa 2 -->
+                <div class="program-card bg-white rounded-xl shadow-lg overflow-hidden border-t-4 border-gray-700">
+                    <div class="p-4">
+                        <p class="text-xs font-semibold text-gray-600 mb-1">PULSO POLÍTICO</p>
+                        <h3 class="font-bold text-lg mb-2">Impacto del Nuevo Código Urbano en el Centro</h3>
+                        <p class="text-sm text-gray-500">Análisis con arquitectos y concejales locales. Exclusivo RGC.</p>
+                        <button class="mt-3 text-sm font-semibold text-rcg-primary hover:text-red-700">Ver Ahora →</button>
+                    </div>
+                </div>
+                 <!-- Tarjeta de Programa 3 -->
+                <div class="program-card bg-white rounded-xl shadow-lg overflow-hidden border-t-4 border-yellow-500">
+                    <div class="p-4">
+                        <p class="text-xs font-semibold text-yellow-600 mb-1">SALUD ALTERNATIVA</p>
+                        <h3 class="font-bold text-lg mb-2">Yoga y Meditación: Reduciendo el Estrés Laboral</h3>
+                        <p class="text-sm text-gray-500">Clase completa de 30 minutos grabada en el Coworking Hub.</p>
+                        <button class="mt-3 text-sm font-semibold text-rcg-primary hover:text-red-700">Ver Ahora →</button>
+                    </div>
+                </div>
+                 <!-- Tarjeta de Programa 4 -->
+                <div class="program-card bg-white rounded-xl shadow-lg overflow-hidden border-t-4 border-purple-500">
+                    <div class="p-4">
+                        <p class="text-xs font-semibold text-purple-600 mb-1">REPORTE CULTURAL</p>
+                        <h3 class="font-bold text-lg mb-2">El Festival de la Cerveza Artesanal Rosarina</h3>
+                        <p class="text-sm text-gray-500">Cobertura especial del evento y entrevistas a los productores.</p>
+                        <button class="mt-3 text-sm font-semibold text-rcg-primary hover:text-red-700">Ver Ahora →</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 p-6 bg-gray-100 rounded-xl shadow-inner">
+                <h3 class="text-xl font-bold text-gray-800 mb-2">VOD Premium (Suscripción)</h3>
+                <p class="text-gray-600">Acceso a documentales exclusivos y archivo histórico de la ciudad. ¡Suscríbete por $2 USD/mes!</p>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 3: REPORTERO SRN (Street Reporter Network) -->
+        <div id="srn-content" class="content-section hidden">
+            <h2 class="text-3xl font-extrabold text-gray-800 mb-6">Network de Reporteros de Calle (SRN)</h2>
+            <div class="p-8 bg-white rounded-xl shadow-2xl border-l-8 border-rcg-primary">
+                
+                <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                    🎓 Capacitación y Concurso de Reportajes
+                </h3>
+                <p class="text-xl font-semibold text-gray-700 mb-4">¡Aprende a reportear con tu teléfono y gana por tus notas!</p>
+                
+                <ul class="list-disc list-inside space-y-3 text-gray-600 mb-6">
+                    <li>**Formación Gratuita:** Accede a videotutoriales sobre ética periodística, composición de video móvil (MoJo) y cómo verificar fuentes.</li>
+                    <li>**Concurso Semanal:** El mejor reportaje no profesional subido a través de este panel gana un premio y una aparición destacada en el Stream RGC.</li>
+                    <li>**Micropagos Garantizados:** Si tu video es aprobado y publicado, recibes un pago automático basado en las vistas generadas.</li>
+                </ul>
+
+                <div class="mt-6 border-t pt-4">
+                    <h3 class="text-2xl font-bold mb-3">Panel de Subida de Contenido</h3>
+                    <div class="flex flex-col space-y-4">
+                        <input type="text" placeholder="Título del Video (Ej: Corte de calle en Pellegrini)" class="p-3 border border-gray-300 rounded-lg">
+                        <textarea placeholder="Descripción y Ubicación exacta del evento" rows="3" class="p-3 border border-gray-300 rounded-lg"></textarea>
+                        <label class="block text-sm font-medium text-gray-700">Seleccionar Archivo de Video:</label>
+                        <input type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-rcg-secondary file:text-white hover:file:bg-green-700">
+                        <button class="rcg-primary text-white font-bold py-3 rounded-lg transition duration-300 hover:bg-red-700" onclick="showCustomAlert('Video enviado a curación. Si tu nota es seleccionada para el Concurso, te notificaremos en 24hs.')">
+                            Subir Video y Participar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SECCIÓN 4: EDUCACIÓN (RGC Educa) -->
+        <div id="edu-content" class="content-section hidden">
+            <h2 class="text-3xl font-extrabold text-gray-800 mb-6">RGC Educa: Cursos de Capacitación para la Comunidad</h2>
+            
+            <!-- Llamada a la acción para Reportero SRN (Vinculación Educación/Monetización) -->
+            <div class="mb-10 p-6 bg-white rounded-xl shadow-2xl border-l-4 border-rcg-primary">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                    📰 Gana Dinero Reporteando: ¡Aprende y Colabora!
+                </h3>
+                <p class="text-gray-600 mb-4">¿Te interesa el periodismo móvil (MoJo) y quieres ganar micropagos por tus reportajes? Te enseñamos cómo y te damos acceso a nuestra red de colaboradores.</p>
+                <button onclick="changeContent('srn', document.querySelector('[data-content=srn]'))" class="rcg-primary text-white font-bold py-3 px-6 rounded-full transition duration-300 hover:bg-red-700 shadow-xl">
+                    Ir a Capacitación y Subida SRN →
+                </button>
+            </div>
+
+            <h3 class="text-2xl font-extrabold text-gray-800 mb-4 border-b pb-2">Cursos de Capacitación</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Tarjeta de Curso 1 -->
+                <div class="course-card bg-white rounded-xl shadow-lg overflow-hidden border-t-4 border-yellow-500">
+                    <div class="p-5">
+                        <p class="text-xs font-semibold text-yellow-600 mb-1">COMUNICACIÓN</p>
+                        <h3 class="font-bold text-xl mb-2">Periodismo Digital Móvil (MoJo)</h3>
+                        <p class="text-sm text-gray-600">Aprende a reportear con tu teléfono y a producir contenido viral. 8 Módulos.</p>
+                        <p class="mt-3 text-2xl font-extrabold text-rcg-primary">$10 USD <span class="text-sm font-normal text-gray-400">/ Acceso total</span></p>
+                        <button class="mt-4 w-full rcg-primary text-white font-bold py-2 rounded-lg hover:bg-red-700">Inscribirse</button>
+                    </div>
+                </div>
+                
+                <!-- Tarjeta de Curso 2 -->
+                <div class="course-card bg-white rounded-xl shadow-lg overflow-hidden border-t-4 border-blue-500">
+                    <div class="p-5">
+                        <p class="text-xs font-semibold text-blue-600 mb-1">CULTURA E HISTORIA</p>
+                        <h3 class="font-bold text-xl mb-2">Historia Urbana de Rosario: Del Puerto a la Modernidad</h3>
+                        <p class="text-sm text-gray-600">Un recorrido inmersivo por el pasado de la ciudad, dictado por historiadores de la UNR. 5 Módulos.</p>
+                        <p class="mt-3 text-2xl font-extrabold text-rcg-secondary">Gratuito <span class="text-sm font-normal text-gray-400">/ Acceso Libre</span></p>
+                        <button class="mt-4 w-full rcg-secondary text-white font-bold py-2 rounded-lg hover:bg-green-700">Ver Curso</button>
+                    </div>
+                </div>
+                
+                <!-- Tarjeta de Curso 3 -->
+                <div class="course-card bg-white rounded-xl shadow-lg overflow-hidden border-t-4 border-green-500">
+                    <div class="p-5">
+                        <p class="text-xs font-semibold text-green-600 mb-1">NEGOCIOS</p>
+                        <h3 class="font-bold text-xl mb-2">Marketing para Emprendedores Locales</h3>
+                        <p class="text-sm text-gray-600">Estrategias de bajo costo para PyMES en la región. 10 Módulos + Certificado.</p>
+                        <p class="mt-3 text-2xl font-extrabold text-gray-800">$15 USD <span class="text-sm font-normal text-gray-400">/ Acceso Premium</span></p>
+                        <button class="mt-4 w-full bg-gray-800 text-white font-bold py-2 rounded-lg hover:bg-gray-700">Inscribirse</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </main>
+
+    <!-- Modal Base (Para Alertas Personalizadas) -->
+    <div id="custom-alert-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center transform transition duration-300">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4" id="custom-alert-title">Notificación RGC</h3>
+            <p class="text-gray-700 mb-6" id="custom-alert-message">Mensaje de prueba.</p>
+            <button onclick="closeModal('custom-alert-modal')" class="rcg-primary text-white font-bold py-2 px-6 rounded-full hover:bg-red-700">
+                Aceptar
+            </button>
+        </div>
+    </div>
+
+    <!-- Simulación de Modal para Patrocinio SFC -->
+    <div id="modal-sfc" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center transform transition duration-300">
+            <h3 class="text-2xl font-bold text-rcg-primary mb-4">¡Micro-Patrocinio Exitoso!</h3>
+            <p class="text-gray-700 mb-6">Su nombre o marca aparecerá en el segmento de **Pulso Político** de las 10:00 hs.</p>
+            <p class="text-sm text-gray-500 mb-6">Gracias por financiar contenido local de calidad. Este sistema (SFC) asegura la rentabilidad y el crecimiento de RGC.</p>
+            <button onclick="closeModal('modal-sfc')" class="rcg-secondary text-white font-bold py-2 px-6 rounded-full hover:bg-green-700">
+                Cerrar
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal para Donaciones Directas -->
+    <div id="modal-donation-direct" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center transform transition duration-300">
+            <h3 class="text-2xl font-bold text-yellow-600 mb-4">⭐ Integración de Donaciones</h3>
+            <p class="text-gray-700 mb-6">**En la aplicación final:** Este botón se vincularía a una plataforma de pagos (Ej: Mercado Pago, PayPal) donde los usuarios pueden enviar propinas o donaciones directas al canal.</p>
+            <p class="text-sm text-gray-500 mb-6">Mecanismo simple y directo para el apoyo del público general.</p>
+            <button onclick="closeModal('modal-donation-direct')" class="bg-gray-700 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-800">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal para Sorteos/Concursos -->
+    <div id="modal-contests" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center transform transition duration-300">
+            <h3 class="text-2xl font-bold text-blue-600 mb-4">🏆 Sorteos y Concursos</h3>
+            <p class="text-gray-700 mb-6">**En la aplicación final:** Esta sección gestionaría concursos interactivos (trivia, preguntas de actualidad local) y sorteos con premios de patrocinadores locales.</p>
+            <p class="text-sm text-gray-500 mb-6">Fomenta la interacción, la participación activa y ofrece valor a los auspiciantes.</p>
+            <button onclick="closeModal('modal-contests')" class="bg-gray-700 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-800">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+
+    <script>
+        // Data de la Parrilla de Programación (Simulación)
+        const scheduleData = [
+            { time: "08:30", title: "Mundo Animal: Rescate en el Sur", category: "Animales", color: "bg-blue-500" },
+            { time: "09:00", title: "Salud Alternativa: Nutrición Holística", category: "Alternativa", color: "bg-yellow-500" },
+            { time: "09:30", title: "Reporte Cultural: Colectividades", category: "Cultura", color: "bg-purple-500" },
+            { time: "10:00", title: "Pulso Político: Debate de Obras Públicas", category: "Política", color: "bg-gray-700" },
+            { time: "10:30", title: "Salud al Día: Prevención (Convenio Médicos)", category: "Salud", color: "bg-green-500" },
+            { time: "11:00", title: "Rosario Turismo: La Ciudad Antigua", category: "Cultura", color: "bg-purple-500" },
+            { time: "11:30", title: "Mundo Animal: Adopciones Responsables", category: "Animales", color: "bg-blue-500" },
+            { time: "12:00", title: "Noticias RGC: Flash Informativo", category: "Noticias", color: "bg-rcg-primary" },
+        ];
+
+        const scheduleList = document.getElementById('schedule-list');
+        const contentSections = document.querySelectorAll('.content-section');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        // Función para renderizar la parrilla
+        function renderSchedule() {
+            scheduleList.innerHTML = ''; // Limpiar lista
+            scheduleData.forEach((program, index) => {
+                const item = document.createElement('li');
+                item.className = `program-card p-3 rounded-lg flex justify-between items-center bg-white hover:bg-gray-50 border-l-4 border-transparent`;
+                
+                let statusBadge = `<span class="text-sm font-semibold text-gray-500">${program.time}</span>`;
+
+                // Simulación visual: el programa de las 10:00 es el próximo gran evento.
+                if (program.time === "10:00") {
+                    item.classList.add('bg-red-50', 'border-rcg-primary', 'shadow-md');
+                    statusBadge = `<span class="text-xs font-bold text-rcg-primary">¡PROGRÁMATE!</span>`;
+                }
+
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-2 h-2 ${program.color} rounded-full flex-shrink-0"></div>
+                        <div>
+                            <p class="font-semibold text-gray-800">${program.title}</p>
+                            <p class="text-xs text-gray-400">${program.category}</p>
+                        </div>
+                    </div>
+                    ${statusBadge}
+                `;
+                scheduleList.appendChild(item);
+            });
+        }
+
+        // Función para cambiar de pantalla/sección
+        function changeContent(targetId, element) {
+            event.preventDefault(); // Previene la acción por defecto del enlace
+
+            // Ocultar todas las secciones de contenido
+            contentSections.forEach(section => {
+                section.style.display = 'none';
+                section.classList.remove('grid'); 
+            });
+
+            // Mostrar la sección deseada
+            const targetElement = document.getElementById(targetId + '-content');
+            if (targetElement) {
+                targetElement.style.display = 'block';
+                // El stream debe mantener la estructura de grid
+                if (targetId === 'stream') {
+                    targetElement.style.display = 'grid';
+                }
+            }
+
+            // Manejar estilos de navegación
+            navItems.forEach(nav => nav.classList.remove('nav-active'));
+            if (element) {
+                element.classList.add('nav-active');
+            }
+        }
+
+        // --- Manejo de Modales (Evitar alert() ---
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function showCustomAlert(message, title = "Notificación RGC") {
+            document.getElementById('custom-alert-title').textContent = title;
+            document.getElementById('custom-alert-message').textContent = message;
+            openModal('custom-alert-modal');
+        }
+
+        // Exponer funciones al scope global
+        window.changeContent = changeContent;
+        window.closeModal = closeModal;
+        
+        // Simulación de interacción SFC (Micro-Patrocinio)
+        window.simulateSFC = function() {
+            openModal('modal-sfc');
+        };
+
+        // Simulación de Donación Directa
+        window.simulateDonationDirect = function() {
+            openModal('modal-donation-direct');
+        };
+
+        // Simulación de Sorteos y Concursos
+        window.simulateContests = function() {
+            openModal('modal-contests');
+        };
+
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSchedule();
+        });
+    </script>
+</body>
+</html>

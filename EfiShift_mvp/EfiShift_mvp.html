@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EfiShift - Prototipo MVP (Demo Local)</title>
+    <!-- 1. Tailwind CSS CDN para estilos profesionales -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 2. React, ReactDOM y Babel para ejecutar el código JSX en el navegador -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        /* Aplicamos la fuente Inter por defecto */
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Se define una función simple para simular los iconos de Lucide (no se pueden importar en HTML simple)
+        const Icon = ({ children, className = 'w-5 h-5', color = 'currentColor' }) => (
+            <span className={`inline-flex items-center justify-center ${className}`} style={{ color }}>
+                {children}
+            </span>
+        );
+        
+        // --- MOCKUP DE DATOS ---
+        
+        const DRIVER_USER = {
+          id: 'driver-123',
+          name: 'Juan Pérez',
+          role: 'Conductor',
+          efiPoints: 1250,
+          nextShift: 'Línea 105 - 06:00 a 14:00',
+          isAuthReady: true,
+        };
+        
+        const TRAFFIC_MANAGER_USER = {
+          id: 'manager-456',
+          name: 'María López',
+          role: 'Gerente Tráfico',
+          efiPoints: 0, 
+          nextShift: 'Dashboard de Control',
+          isAuthReady: true,
+        };
+        
+        const initialVacancies = [
+          { id: 1, title: 'Emergencia Línea 47', time: '14:00 - 22:00 (HOY)', bus: 'Bus 211', points: 800, urgency: 'Alta' },
+          { id: 2, title: 'Turno Nocturno Línea 9', time: '22:00 - 06:00 (MAÑANA)', bus: 'Bus 190', points: 550, urgency: 'Media' },
+          { id: 3, title: 'Cubrir Ausencia Línea 12', time: '08:00 - 16:00 (MAÑANA)', bus: 'Bus 301', points: 300, urgency: 'Baja' },
+        ];
+        
+        const initialSchedule = [
+          { id: 10, title: 'Línea 105', time: '06:00 - 14:00', date: 'Viernes 17/10', status: 'Confirmado' },
+          { id: 11, title: 'Línea 33', time: '14:00 - 22:00', date: 'Sábado 18/10', status: 'Confirmado' },
+        ];
+        
+        const mockShopItems = [
+            { id: 1, name: 'Día Libre Preferencial (Next Month)', points: 5000 },
+            { id: 2, name: 'Bono Cena para Dos', points: 2500 },
+            { id: 3, name: 'Elección Anticipada de Vacaciones', points: 10000 },
+        ];
+        
+        // --- COMPONENTES DE VISTA ---
+        
+        const ShiftCard = ({ title, subtitle, points, status, color, actionButton }) => (
+          <div className={`bg-white shadow-xl rounded-xl p-4 mb-4 border-l-4 ${color}`}>
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-bold text-gray-800">{title}</h3>
+                <p className="text-sm text-gray-500 flex items-center">
+                    <Icon className="w-4 h-4 mr-1 text-indigo-500">⏰</Icon>
+                    {subtitle}
+                </p>
+              </div>
+              <div className="text-right">
+                {points !== undefined && (
+                    <div className="flex items-center text-xl font-extrabold text-green-600">
+                        <Icon className="w-5 h-5 mr-1">💰</Icon>
+                        {points}
+                    </div>
+                )}
+                {status && (
+                    <span className={`text-xs font-semibold py-1 px-3 rounded-full ${color.includes('green') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {status}
+                    </span>
+                )}
+              </div>
+            </div>
+            {actionButton && <div className="mt-3 border-t pt-3">{actionButton}</div>}
+          </div>
+        );
+        
+        // --- PÁGINAS (VISTAS) DE LA APP ---
+        
+        const DriverDashboard = ({ user, nextShift, efiPoints }) => (
+          <div className="p-4 space-y-6">
+            <div className="bg-indigo-600 text-white p-6 rounded-2xl shadow-lg">
+              <p className="text-sm opacity-80">Bienvenido de vuelta,</p>
+              <h1 className="text-2xl font-bold">{user.name}</h1>
+              <div className="mt-4 pt-3 border-t border-indigo-400 flex justify-between items-center">
+                <div>
+                  <p className="text-sm font-light">Próximo Turno:</p>
+                  <p className="text-lg font-semibold">{nextShift || 'Descanso programado'}</p>
+                </div>
+              </div>
+            </div>
+        
+            <div className="bg-white p-5 rounded-2xl shadow-xl border-t-4 border-yellow-500">
+              <div className="flex justify-between items-center">
+                <div className='flex items-center'>
+                    <Icon className='w-6 h-6 text-yellow-500 mr-2'>💰</Icon>
+                    <p className="text-xl font-semibold text-gray-700">Tus Puntos Efi:</p>
+                </div>
+                <div className="text-4xl font-extrabold text-yellow-600">
+                  {efiPoints.toLocaleString()}
+                </div>
+              </div>
+              <p className="text-sm mt-2 text-gray-500">Canjea tus puntos por recompensas en el EfiShop.</p>
+            </div>
+        
+            <div className="bg-white p-5 rounded-2xl shadow-xl">
+                <h2 className="text-lg font-semibold text-gray-700 flex items-center">
+                    <Icon className='w-5 h-5 mr-2 text-indigo-500'>🚌</Icon>
+                    Estado de Flota
+                </h2>
+                <p className="text-sm mt-2 text-gray-500">Recuerda completar el check-out digital del Bus 105.</p>
+                <button className="w-full mt-3 bg-indigo-500 text-white py-2 rounded-lg text-sm font-medium hover:bg-indigo-600 transition duration-150">
+                    Realizar Check-Out
+                </button>
+            </div>
+          </div>
+        );
+        
+        const VacanciesPage = ({ vacancies, onClaimShift, userPoints }) => {
+          const [loading, setLoading] = React.useState(false);
+        
+          const handleClaim = (id, points) => {
+            setLoading(true);
+            // Simulate API call and legal/compliance check
+            setTimeout(() => {
+              onClaimShift(id, points);
+              setLoading(false);
+            }, 1500);
+          };
+        
+          return (
+            <div className="p-4">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                <Icon className='w-6 h-6 mr-2 text-red-600'>⏰</Icon>
+                Alertas de Turnos (PPO)
+              </h2>
+              <p className='text-sm text-gray-600 mb-4'>¡Oportunidades de turno con Puntos Efi extra! El sistema garantiza que usted cumpla con la normativa legal de descanso.</p>
+        
+              {loading && (
+                <div className="flex justify-center items-center p-6 bg-yellow-50 rounded-lg mb-4">
+                  <Icon className="w-6 h-6 animate-spin mr-2 text-yellow-600">🔄</Icon>
+                  <p className='text-yellow-700 font-medium'>Verificando cumplimiento legal y asignando...</p>
+                </div>
+              )}
+        
+              {vacancies.length === 0 && !loading && (
+                <div className='text-center py-12 bg-green-50 rounded-xl shadow-inner'>
+                    <Icon className='w-8 h-8 mx-auto text-green-500'>✅</Icon>
+                    <p className="text-xl font-semibold text-green-700 mt-2">¡Todo cubierto! Sin vacantes urgentes.</p>
+                    <p className='text-sm text-gray-500'>Siga revisando el tablero por oportunidades futuras.</p>
+                </div>
+              )}
+        
+              {vacancies.map((vacancy) => (
+                <ShiftCard
+                  key={vacancy.id}
+                  title={vacancy.title}
+                  subtitle={`${vacancy.time} - Bus: ${vacancy.bus}`}
+                  points={vacancy.points}
+                  color={vacancy.urgency === 'Alta' ? 'border-red-500' : 'border-orange-500'}
+                  actionButton={
+                    <button
+                      onClick={() => handleClaim(vacancy.id, vacancy.points)}
+                      disabled={loading}
+                      className={`w-full py-2 rounded-lg text-white font-bold transition duration-150 ${loading ? 'bg-gray-400' : 'bg-red-600 hover:bg-red-700'}`}
+                    >
+                      {loading ? 'Asignando...' : `Tomar Turno y Ganar ${vacancy.points} Puntos`}
+                    </button>
+                  }
+                />
+              ))}
+            </div>
+          );
+        };
+        
+        const MySchedulePage = ({ schedule }) => (
+            <div className="p-4">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                <Icon className='w-6 h-6 mr-2 text-indigo-600'>✅</Icon>
+                Mi Cuadrante
+              </h2>
+              <p className='text-sm text-gray-600 mb-4'>Tu calendario de turnos fijos y los turnos extra que has reclamado.</p>
+        
+              {schedule.map((shift) => (
+                <ShiftCard
+                  key={shift.id}
+                  title={shift.title}
+                  subtitle={`${shift.date} | ${shift.time}`}
+                  status={shift.status}
+                  points={shift.points} 
+                  color={shift.status === 'Confirmado' ? 'border-green-500' : 'border-yellow-500'}
+                />
+              ))}
+        
+              <div className="mt-8">
+                <h3 className="text-xl font-semibold text-gray-700 mb-3">Solicitudes de Permiso</h3>
+                <button className='w-full py-3 bg-gray-100 border border-gray-300 text-gray-700 rounded-lg font-medium flex items-center justify-center hover:bg-gray-200 transition duration-150'>
+                    <Icon className='w-5 h-5 mr-2'>🚫</Icon>
+                    Solicitar Día Libre
+                </button>
+              </div>
+            </div>
+        );
+        
+        const EfiShopPage = ({ userPoints, onRedeem }) => (
+            <div className="p-4">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                <Icon className='w-6 h-6 mr-2 text-purple-600'>🎁</Icon>
+                EfiShop: Canjea tus Recompensas
+              </h2>
+              <div className="bg-purple-100 p-4 rounded-xl mb-6 flex justify-between items-center">
+                <p className="text-lg font-medium text-purple-800">Tus Puntos Actuales:</p>
+                <span className="text-3xl font-extrabold text-purple-600 flex items-center">
+                    <Icon className='w-6 h-6 mr-1'>💰</Icon>
+                    {userPoints.toLocaleString()}
+                </span>
+              </div>
+        
+              <div className='space-y-4'>
+                  {mockShopItems.map(item => (
+                      <div key={item.id} className='bg-white p-4 rounded-xl shadow border-l-4 border-purple-500 flex justify-between items-center'>
+                          <div>
+                              <h3 className="text-lg font-bold text-gray-800">{item.name}</h3>
+                              <p className="text-sm text-purple-600 flex items-center mt-1">
+                                <Icon className='w-4 h-4 mr-1'>💰</Icon>
+                                {item.points.toLocaleString()} Puntos
+                              </p>
+                          </div>
+                          <button
+                            onClick={() => onRedeem(item)}
+                            disabled={userPoints < item.points}
+                            className={`py-2 px-4 rounded-full text-white font-semibold transition duration-150 ${
+                                userPoints < item.points ? 'bg-gray-400' : 'bg-purple-600 hover:bg-purple-700'
+                            }`}
+                          >
+                            {userPoints < item.points ? 'Puntos Insuficientes' : 'Canjear'}
+                          </button>
+                      </div>
+                  ))}
+              </div>
+            </div>
+        );
+        
+        // --- PÁGINAS DE GESTIÓN (GERENTE DE TRÁFICO) ---
+        
+        const TrafficManagerDashboard = ({vacancies, schedule}) => {
+            const totalVacancies = vacancies.length;
+            const pendingRequests = schedule.filter(s => s.status === 'Pendiente').length;
+        
+            return (
+                <div className="p-4 space-y-6">
+                    <div className="bg-red-600 text-white p-6 rounded-2xl shadow-lg">
+                        <p className="text-sm opacity-80">Panel de Control de Tráfico</p>
+                        <h1 className="text-2xl font-bold">Resumen Operacional</h1>
+                    </div>
+        
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-white p-5 rounded-2xl shadow-xl border-t-4 border-red-500">
+                            <p className="text-xl font-medium text-gray-700">Vacantes Urgentes</p>
+                            <div className="text-5xl font-extrabold mt-1 text-red-600">
+                                {totalVacancies}
+                            </div>
+                            <p className='text-sm text-gray-500 mt-1'>Cubiertas por PPO</p>
+                        </div>
+                        <div className="bg-white p-5 rounded-2xl shadow-xl border-t-4 border-yellow-500">
+                            <p className="text-xl font-medium text-gray-700">Solicitudes Pendientes</p>
+                            <div className="text-5xl font-extrabold mt-1 text-yellow-600">
+                                {pendingRequests}
+                            </div>
+                            <p className='text-sm text-gray-500 mt-1'>Permisos/Vacaciones</p>
+                        </div>
+                    </div>
+        
+                    <div className="bg-white p-5 rounded-2xl shadow-xl">
+                        <h2 className="text-lg font-semibold text-gray-700 flex items-center">
+                            <Icon className='w-5 h-5 mr-2 text-indigo-500'>🚌</Icon>
+                            Reportes de Flota
+                        </h2>
+                        <p className="text-sm mt-2 text-gray-500">3 Buses con fallos reportados por Check-in digital (Mantenimiento Predictivo)</p>
+                        <button className="w-full mt-3 bg-indigo-500 text-white py-2 rounded-lg text-sm font-medium hover:bg-indigo-600 transition duration-150">
+                            Ver Flota Detallada
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+        
+        // --- APP PRINCIPAL ---
+        
+        const App = () => {
+          const [user, setUser] = React.useState(DRIVER_USER); 
+          const [currentPage, setCurrentPage] = React.useState('dashboard');
+          const [vacancies, setVacancies] = React.useState(initialVacancies);
+          const [schedule, setSchedule] = React.useState(initialSchedule);
+          const [message, setMessage] = React.useState(null);
+        
+          const userPoints = React.useMemo(() => user.efiPoints, [user]);
+        
+          const handleClaimShift = (id, points) => {
+            const claimedVacancy = vacancies.find(v => v.id === id);
+            if (!claimedVacancy) return;
+        
+            setVacancies(vacancies.filter(v => v.id !== id));
+        
+            setUser(prevUser => ({
+              ...prevUser,
+              efiPoints: prevUser.efiPoints + points,
+            }));
+        
+            const newShift = {
+                id: Date.now(),
+                title: claimedVacancy.title,
+                time: claimedVacancy.time,
+                date: new Date().toLocaleDateString('es-ES', {weekday: 'long', day: 'numeric', month: 'short'}),
+                points: points,
+                status: 'Reclamado (PPO)',
+            };
+            setSchedule(prevSchedule => [newShift, ...prevSchedule]);
+        
+            setMessage({
+                type: 'success',
+                text: `¡Turno '${claimedVacancy.title}' reclamado con éxito! Has ganado ${points} Puntos Efi.`,
+            });
+          };
+        
+          const handleRedeem = (item) => {
+            if (user.efiPoints < item.points) {
+                setMessage({ type: 'error', text: `¡No tiene suficientes puntos para ${item.name}!` });
+                return;
+            }
+            setUser(prevUser => ({
+                ...prevUser,
+                efiPoints: prevUser.efiPoints - item.points,
+            }));
+            setMessage({
+                type: 'info',
+                text: `¡Has canjeado ${item.points} Puntos Efi por ${item.name}! El equipo de RRHH te contactará.`,
+            });
+          }
+        
+          React.useEffect(() => {
+            if (message) {
+              const timer = setTimeout(() => setMessage(null), 4000);
+              return () => clearTimeout(timer);
+            }
+          }, [message]);
+        
+          const renderPage = () => {
+            if (user.role === 'Conductor') {
+              switch (currentPage) {
+                case 'dashboard':
+                  return <DriverDashboard user={user} nextShift={user.nextShift} efiPoints={userPoints} />;
+                case 'vacancies':
+                  return <VacanciesPage vacancies={vacancies} onClaimShift={handleClaimShift} userPoints={userPoints} />;
+                case 'schedule':
+                    return <MySchedulePage schedule={schedule} />;
+                case 'shop':
+                    return <EfiShopPage userPoints={userPoints} onRedeem={handleRedeem} />;
+                default:
+                  return <DriverDashboard user={user} nextShift={user.nextShift} efiPoints={userPoints} />;
+              }
+            } else {
+                return <TrafficManagerDashboard vacancies={vacancies} schedule={schedule}/>;
+            }
+          };
+        
+          const driverNav = [
+            { id: 'dashboard', label: 'Inicio', icon: '🏠', role: 'Conductor' },
+            { id: 'vacancies', label: 'Alertas PPO', icon: '🚨', role: 'Conductor' },
+            { id: 'schedule', label: 'Mi Cuadrante', icon: '🗓️', role: 'Conductor' },
+            { id: 'shop', label: 'EfiShop', icon: '🎁', role: 'Conductor' },
+          ];
+        
+          const managerNav = [
+            { id: 'dashboard', label: 'Control', icon: '📊', role: 'Gerente Tráfico' },
+          ];
+        
+          const navItems = user.role === 'Conductor' ? driverNav : managerNav;
+        
+          const renderMessage = () => {
+            if (!message) return null;
+        
+            let bgColor = 'bg-green-500';
+            let icon = '✅';
+        
+            if (message.type === 'error') {
+                bgColor = 'bg-red-500';
+                icon = '🚫';
+            } else if (message.type === 'info') {
+                bgColor = 'bg-blue-500';
+                icon = 'ℹ️';
+            }
+        
+            return (
+                <div className={`fixed top-4 left-1/2 -translate-x-1/2 p-3 rounded-xl shadow-2xl text-white font-medium z-50 transition-opacity duration-300 ${bgColor} flex items-center`}>
+                    <span className='mr-2 text-lg'>{icon}</span>
+                    <span className='ml-2 text-sm'>{message.text}</span>
+                </div>
+            );
+          };
+          
+          const RoleSwitcher = () => (
+              <div className="absolute top-2 right-2 flex space-x-2 z-10">
+                  <button
+                      onClick={() => setUser(DRIVER_USER)}
+                      className={`text-xs p-1 rounded-full ${user.role === 'Conductor' ? 'bg-indigo-700 text-white' : 'bg-gray-200 text-gray-700'}`}
+                      title="Cambiar a Conductor"
+                  >
+                      Conductor
+                  </button>
+                  <button
+                      onClick={() => setUser(TRAFFIC_MANAGER_USER)}
+                      className={`text-xs p-1 rounded-full ${user.role === 'Gerente Tráfico' ? 'bg-indigo-700 text-white' : 'bg-gray-200 text-gray-700'}`}
+                      title="Cambiar a Gerente"
+                  >
+                      Gerente
+                  </button>
+              </div>
+          );
+        
+          return (
+            <div className="min-h-screen bg-gray-100 font-sans flex justify-center p-2">
+              <div className="w-full max-w-sm bg-white shadow-2xl rounded-2xl flex flex-col h-[95vh] overflow-hidden relative">
+                <header className="p-4 bg-indigo-600 text-white shadow-md flex justify-between items-center z-10">
+                  <h1 className="text-xl font-extrabold flex items-center">
+                    <span className='mr-2 text-2xl'>🚌</span>
+                    EfiShift
+                  </h1>
+                  <RoleSwitcher />
+                </header>
+        
+                {renderMessage()}
+        
+                <main className="flex-1 overflow-y-auto pb-20">
+                  {renderPage()}
+                </main>
+        
+                <footer className="absolute bottom-0 w-full bg-white border-t border-gray-200 shadow-lg p-2">
+                  <div className="flex justify-around">
+                    {navItems.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setCurrentPage(item.id)}
+                        className={`flex flex-col items-center p-2 rounded-lg transition-colors duration-200 ${
+                          currentPage === item.id
+                            ? 'text-indigo-600 font-bold'
+                            : 'text-gray-500 hover:text-indigo-600'
+                        }`}
+                      >
+                        <span className="w-5 h-5 text-lg leading-none">{item.icon}</span>
+                        <span className="text-xs mt-1">{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </footer>
+              </div>
+            </div>
+          );
+        };
+        
+        // Función de renderizado para React v18
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+    </script>
+</body>
+</html>
