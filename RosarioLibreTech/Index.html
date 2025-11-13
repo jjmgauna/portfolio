@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rosario Libre Tech - Portal de Actores MVP</title>
+    <!-- Carga de Tailwind CSS para un diseño moderno y responsive -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+        }
+        .card {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        .btn-primary {
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #3b82f6;
+        }
+        .profile-card {
+            min-height: 200px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Encabezado y Título -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-2">
+                Rosario Libre Tech
+            </h1>
+            <p class="text-xl text-indigo-600 font-semibold">
+                Portal de Actores del Ecosistema (MVP)
+            </p>
+        </header>
+
+        <!-- Contenedor Principal de Vistas -->
+        <div id="app-container">
+            
+            <!-- Vista 1: Selector de Perfil -->
+            <div id="view-selector" class="view">
+                <h2 class="text-2xl font-bold text-gray-800 mb-8 text-center">Seleccione su Rol para Ingresar al Portal</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                    
+                    <div class="profile-card card bg-white p-6 rounded-xl border border-blue-100 text-center flex flex-col justify-center items-center" 
+                         onclick="showView('investor')">
+                        <svg class="w-12 h-12 text-blue-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        <p class="text-xl font-semibold text-gray-700">Inversor Ángel</p>
+                        <p class="text-sm text-gray-500 mt-1">Sigue tu cartera y retorno.</p>
+                    </div>
+
+                    <div class="profile-card card bg-white p-6 rounded-xl border border-green-100 text-center flex flex-col justify-center items-center"
+                         onclick="showView('coworking')">
+                        <svg class="w-12 h-12 text-green-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        <p class="text-xl font-semibold text-gray-700">Coworking</p>
+                        <p class="text-sm text-gray-500 mt-1">Gestiona slots y beneficios TGI.</p>
+                    </div>
+
+                    <div class="profile-card card bg-white p-6 rounded-xl border border-yellow-100 text-center flex flex-col justify-center items-center"
+                         onclick="showView('startup')">
+                        <svg class="w-12 h-12 text-yellow-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9.25 21H16L15.5 17M10 21L14 17M10 21L14 17M7.75 12h8.5M12 5v2m0 8v2m0 8h2m-2-8v2m-2-8h4a2 2 0 002-2V7a2 2 0 00-2-2h-4a2 2 0 00-2 2v3a2 2 0 002 2z"></path></svg>
+                        <p class="text-xl font-semibold text-gray-700">Startup</p>
+                        <p class="text-sm text-gray-500 mt-1">Busca patrocinios y mentoría.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista 2: Perfil del Inversor Ángel -->
+            <div id="view-investor" class="view hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800">Perfil: Inversor Ángel (VC Local C)</h2>
+                    <button onclick="showView('selector')" class="text-sm text-indigo-600 hover:text-indigo-800 focus:outline-none flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+                        Cambiar Rol
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="card bg-white p-6 rounded-xl border border-yellow-100 lg:col-span-2">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Mi Cartera Activa</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Startup</th>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inversión (USD)</th>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Etapa</th>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Retorno Potencial (X)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="investor-portfolio" class="bg-white divide-y divide-gray-200">
+                                    <!-- Datos de startups invertidas -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="card bg-white p-6 rounded-xl border border-indigo-100">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Resumen Financiero</h3>
+                        <p class="text-sm font-medium text-gray-500">Capital Comprometido:</p>
+                        <p id="investor-committed-capital" class="mt-1 text-2xl font-bold text-indigo-600 mb-4">$0</p>
+                        
+                        <p class="text-sm font-medium text-gray-500">Retorno Estimado Promedio:</p>
+                        <p id="investor-avg-return" class="mt-1 text-2xl font-bold text-green-600 mb-4">0.0X</p>
+
+                        <h4 class="font-semibold text-gray-700 mt-6">Acciones Rápidas:</h4>
+                        <button onclick="showView('registry')" class="w-full mt-2 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600">
+                            Buscar Startups para Invertir
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Listado de todas las startups -->
+                <div class="card bg-white p-6 rounded-xl border border-gray-100">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Todas las Startups del Programa (Oportunidades)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Startup</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sector</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mentoría</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="all-startups-opportunities" class="bg-white divide-y divide-gray-200">
+                                <!-- Todas las startups se renderizan aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vista 3: Perfil del Coworking -->
+            <div id="view-coworking" class="view hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800">Perfil: Coworking (Workspace Central)</h2>
+                    <button onclick="showView('selector')" class="text-sm text-indigo-600 hover:text-indigo-800 focus:outline-none flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+                        Cambiar Rol
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="card bg-white p-6 rounded-xl border border-green-100">
+                        <p class="text-sm font-medium text-gray-500">Slots Ociosos Usados:</p>
+                        <p id="coworking-used-slots" class="mt-1 text-3xl font-bold text-green-600">0/5</p>
+                    </div>
+                    <div class="card bg-white p-6 rounded-xl border border-yellow-100">
+                        <p class="text-sm font-medium text-gray-500">Beneficio TGI Generado (Anual):</p>
+                        <p id="coworking-tgi-benefit" class="mt-1 text-3xl font-bold text-yellow-600">$0</p>
+                    </div>
+                    <div class="card bg-white p-6 rounded-xl border border-blue-100">
+                        <p class="text-sm font-medium text-gray-500">Equity Total Acumulado:</p>
+                        <p id="coworking-total-equity" class="mt-1 text-3xl font-bold text-blue-600">0.0%</p>
+                    </div>
+                </div>
+
+                <div class="card bg-white p-6 rounded-xl border border-gray-100">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Startups Patrocinadas por Workspace Central</h3>
+                    <ul id="coworking-sponsored-list" class="space-y-4">
+                        <!-- Lista de startups patrocinadas -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Vista 4: Perfil de la Startup -->
+            <div id="view-startup" class="view hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800">Perfil: Startup (AgroSense AI)</h2>
+                    <button onclick="showView('selector')" class="text-sm text-indigo-600 hover:text-indigo-800 focus:outline-none flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+                        Cambiar Rol
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="card bg-white p-6 rounded-xl border border-yellow-100">
+                        <p class="text-sm font-medium text-gray-500">Mentor Líder Asignado:</p>
+                        <p id="startup-investor" class="mt-1 text-2xl font-bold text-yellow-600">Fondo Semilla B</p>
+                        <p class="text-sm font-medium text-gray-500 mt-4">Coworking Patrocinador:</p>
+                        <p id="startup-coworking" class="mt-1 text-2xl font-bold text-green-600">TechHub Rio</p>
+                    </div>
+                    
+                    <div class="card bg-white p-6 rounded-xl border border-blue-100">
+                        <p class="text-sm font-medium text-gray-500">Inversión Recibida (Capital Semilla):</p>
+                        <p id="startup-investment" class="mt-1 text-2xl font-bold text-blue-600">$10,000</p>
+                        <p class="text-sm font-medium text-gray-500 mt-4">Etapa Actual:</p>
+                        <p id="startup-stage" class="mt-1 text-2xl font-bold text-indigo-600">Validación de Producto</p>
+                    </div>
+                </div>
+
+                <div class="card bg-white p-6 rounded-xl border border-gray-100">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Buscar Coworking Disponible</h3>
+                    <p class="text-gray-600 mb-4">Postúlate a un Coworking para obtener espacio ocioso gratuito y asegurar el Acuerdo de Patrocinio.</p>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coworking</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slots Libres</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Beneficio TGI</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="startup-coworking-opportunities" class="bg-white divide-y divide-gray-200">
+                                <!-- Coworkings disponibles se insertan aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- El antiguo Registro de Acuerdos (ahora accesible desde Inversor/Startup) -->
+            <div id="view-registry" class="view hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800">Registro de Acuerdos Certificados</h2>
+                    <button onclick="showView('selector')" class="text-sm text-indigo-600 hover:text-indigo-800 focus:outline-none flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+                        Volver a Roles
+                    </button>
+                </div>
+                
+                <div class="bg-white p-8 rounded-xl card max-w-3xl mx-auto">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Registrar Nuevo Acuerdo de Patrocinio</h3>
+                    <form id="agreement-form">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Campo Startup -->
+                            <div>
+                                <label for="startup" class="block text-sm font-medium text-gray-700">Nombre de la Startup</label>
+                                <input type="text" id="startup-reg" name="startup" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                            </div>
+                            <!-- Campo Sector -->
+                            <div>
+                                <label for="sector" class="block text-sm font-medium text-gray-700">Sector (Ej: AgTech, FinTech)</label>
+                                <input type="text" id="sector-reg" name="sector" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                            </div>
+                            <!-- Campo Coworking -->
+                            <div>
+                                <label for="coworking" class="block text-sm font-medium text-gray-700">Coworking Patrocinador</label>
+                                <select id="coworking-reg" name="coworking" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border bg-white">
+                                    <option value="" disabled selected>Seleccione un Coworking</option>
+                                </select>
+                            </div>
+                            <!-- Campo Inversor -->
+                            <div>
+                                <label for="investor" class="block text-sm font-medium text-gray-700">Inversor Ángel Líder</label>
+                                <select id="investor-reg" name="investor" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border bg-white">
+                                    <option value="" disabled selected>Seleccione un Inversor</option>
+                                </select>
+                            </div>
+                            <!-- Campo Monto -->
+                            <div>
+                                <label for="amount" class="block text-sm font-medium text-gray-700">Monto Inversión Semilla (USD)</label>
+                                <input type="number" id="amount-reg" name="amount" required min="1000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                            </div>
+                            <!-- Campo Equity -->
+                            <div>
+                                <label for="equity" class="block text-sm font-medium text-gray-700">Equity Otorgado al Coworking (%)</label>
+                                <input type="number" id="equity-reg" name="equity" required min="0.1" max="5" step="0.1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                            </div>
+                        </div>
+
+                        <div class="mt-8 text-center">
+                            <button type="submit" class="btn-primary inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-full text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Registrar Acuerdo Certificado
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Área de Mensajes de la App (no usar alert()) -->
+                    <div id="app-message" class="mt-6 p-4 rounded-lg text-center font-medium hidden"></div>
+                </div>
+            </div>
+
+        </div> <!-- Fin de app-container -->
+
+    </div>
+
+    <script>
+        // --- SIMULACIÓN DE BASE DE DATOS LOCAL (para el MVP) ---
+        // En un entorno real (no MVP), esto usaría una base de datos como Firestore.
+        let agreements = []; // Almacenará los acuerdos vigentes
+        const currentUser = { name: "", role: "" }; // Para simular el usuario logueado
+
+        const STAGES = ["Idea", "Prototipo", "Validación de Producto", "Crecimiento Inicial", "Escalamiento"];
+
+        const actors = {
+            coworkings: [
+                { id: 1, name: "Workspace Central", maxSlots: 5, usedSlots: 0, tgiBenefit: 120000, equityAccumulated: 0 },
+                { id: 2, name: "TechHub Rio", maxSlots: 3, usedSlots: 0, tgiBenefit: 80000, equityAccumulated: 0 },
+                { id: 3, name: "AgTech Garage", maxSlots: 4, usedSlots: 0, tgiBenefit: 100000, equityAccumulated: 0 },
+            ],
+            investors: [
+                { id: 101, name: "Ángel Inversor A", focus: "FinTech" },
+                { id: 102, name: "Fondo Semilla B", focus: "AgTech/Logística" },
+                { id: 103, name: "VC Local C", focus: "SaaS" },
+            ],
+            // Asignación de una startup por defecto para simular el acceso directo
+            startupDefault: { 
+                name: "AgroSense AI", 
+                investor: "Fondo Semilla B", 
+                coworking: "TechHub Rio",
+                amount: 10000,
+                stage: "Validación de Producto"
+            }
+        };
+
+        // --- FUNCIONES DE UTILIDAD DE LA APLICACIÓN ---
+
+        /**
+         * Muestra un mensaje temporal en la UI.
+         */
+        function showMessage(message, type) {
+            const msgEl = document.getElementById('app-message');
+            msgEl.textContent = message;
+            msgEl.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-yellow-100', 'text-yellow-700');
+            
+            if (type === 'success') {
+                msgEl.classList.add('bg-green-100', 'text-green-700');
+            } else if (type === 'error') {
+                msgEl.classList.add('bg-red-100', 'text-red-700');
+            } else if (type === 'info') {
+                 msgEl.classList.add('bg-yellow-100', 'text-yellow-700');
+            }
+
+            // Oculta el mensaje después de 5 segundos
+            setTimeout(() => {
+                msgEl.classList.add('hidden');
+            }, 5000);
+        }
+
+        /**
+         * Rellena las listas desplegables (selects) para el registro.
+         */
+        function populateRegistrationActors() {
+            const coworkingSelect = document.getElementById('coworking-reg');
+            const investorSelect = document.getElementById('investor-reg');
+
+            // Limpiar listas anteriores
+            coworkingSelect.innerHTML = '<option value="" disabled selected>Seleccione un Coworking</option>';
+            investorSelect.innerHTML = '<option value="" disabled selected>Seleccione un Inversor</option>';
+
+            // Llenar Coworkings
+            actors.coworkings.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.name;
+                option.textContent = `${c.name} (Slots: ${c.maxSlots - c.usedSlots}/${c.maxSlots})`;
+                coworkingSelect.appendChild(option);
+            });
+
+            // Llenar Inversores
+            actors.investors.forEach(i => {
+                const option = document.createElement('option');
+                option.value = i.name;
+                option.textContent = `${i.name} (${i.focus})`;
+                investorSelect.appendChild(option);
+            });
+        }
+
+        /**
+         * Función central para cambiar la vista de la aplicación.
+         */
+        function showView(viewId) {
+            // Ocultar todas las vistas
+            document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
+
+            // Actualizar la vista actual del usuario
+            let viewToShow = `view-${viewId}`;
+            
+            if (viewId === 'investor') {
+                currentUser.role = 'Inversor';
+                currentUser.name = 'VC Local C'; // Usamos un inversor por defecto para simular
+                renderInvestorView();
+            } else if (viewId === 'coworking') {
+                currentUser.role = 'Coworking';
+                currentUser.name = 'Workspace Central'; // Usamos un coworking por defecto
+                renderCoworkingView();
+            } else if (viewId === 'startup') {
+                currentUser.role = 'Startup';
+                currentUser.name = actors.startupDefault.name; // Usamos la startup por defecto
+                renderStartupView();
+            } else if (viewId === 'registry') {
+                populateRegistrationActors();
+                viewToShow = 'view-registry';
+            } else {
+                 currentUser.role = '';
+                 currentUser.name = '';
+                 viewToShow = 'view-selector';
+            }
+
+            // Mostrar la vista seleccionada
+            document.getElementById(viewToShow).classList.remove('hidden');
+        }
+
+        // --- FUNCIONES DE RENDERING ESPECÍFICAS POR PERFIL ---
+
+        /**
+         * Renderiza el perfil del Inversor.
+         */
+        function renderInvestorView() {
+            const investorPortfolio = document.getElementById('investor-portfolio');
+            const allStartupsOpportunities = document.getElementById('all-startups-opportunities');
+            investorPortfolio.innerHTML = '';
+            allStartupsOpportunities.innerHTML = '';
+
+            let committedCapital = 0;
+            let totalReturnMultiplier = 0;
+            let investedCount = 0;
+
+            const myAgreements = agreements.filter(a => a.investor === currentUser.name);
+
+            // 1. Renderizar la Cartera Activa (myAgreements)
+            myAgreements.forEach(agreement => {
+                committedCapital += parseFloat(agreement.amount);
+                
+                // Simulación de Retorno Potencial (más alto si la etapa es avanzada)
+                const stageIndex = STAGES.indexOf(agreement.stage);
+                const returnMultiplier = (10 + stageIndex * 5) + Math.random() * 5; // Ejemplo: Idea ~10-15x, Escalamiento ~30-35x
+                totalReturnMultiplier += returnMultiplier;
+                investedCount++;
+
+                const row = investorPortfolio.insertRow();
+                row.className = 'hover:bg-gray-50';
+
+                row.insertCell().textContent = agreement.startup;
+                row.insertCell().textContent = `$${parseFloat(agreement.amount).toLocaleString('es-AR')}`;
+                row.insertCell().textContent = agreement.stage;
+                row.insertCell().textContent = `${returnMultiplier.toFixed(1)}X`;
+            });
+            
+            // 2. Actualizar Resumen Financiero
+            const avgReturn = investedCount > 0 ? (totalReturnMultiplier / investedCount).toFixed(1) : '0.0';
+            document.getElementById('investor-committed-capital').textContent = `$${committedCapital.toLocaleString('es-AR')}`;
+            document.getElementById('investor-avg-return').textContent = `${avgReturn}X`;
+            
+            // 3. Renderizar Oportunidades (Todas las startups, pero sólo las que NO he invertido)
+            const allStartups = agreements.map(a => a.startup);
+            const nonInvestedStartups = agreements.filter(a => a.investor !== currentUser.name);
+            
+            if (nonInvestedStartups.length === 0) {
+                 const row = allStartupsOpportunities.insertRow();
+                 row.insertCell().colSpan = 4;
+                 row.insertCell().textContent = 'No hay startups activas en las que no hayas invertido aún.';
+                 return;
+            }
+
+            nonInvestedStartups.forEach(agreement => {
+                 const row = allStartupsOpportunities.insertRow();
+                 row.className = 'hover:bg-gray-50';
+
+                 row.insertCell().textContent = agreement.startup;
+                 row.insertCell().textContent = agreement.sector;
+                 row.insertCell().textContent = agreement.investor; // Se muestra el inversor líder actual
+                 
+                 const actionCell = row.insertCell();
+                 const button = document.createElement('button');
+                 button.textContent = 'Contactar / Co-Invertir';
+                 button.className = 'bg-indigo-500 hover:bg-indigo-600 text-white text-xs py-1 px-3 rounded-full';
+                 button.onclick = () => showMessage(`Simulación: Contacto enviado a ${agreement.startup} para co-inversión.`, 'info');
+                 actionCell.appendChild(button);
+            });
+        }
+
+        /**
+         * Renderiza el perfil del Coworking.
+         */
+        function renderCoworkingView() {
+            const coworking = actors.coworkings.find(c => c.name === currentUser.name);
+            if (!coworking) return;
+
+            // 1. Actualizar métricas del Coworking
+            document.getElementById('coworking-used-slots').textContent = `${coworking.usedSlots}/${coworking.maxSlots}`;
+            document.getElementById('coworking-tgi-benefit').textContent = `$${coworking.tgiBenefit.toLocaleString('es-AR')}`;
+
+            // 2. Calcular Equity Total
+            const sponsoredAgreements = agreements.filter(a => a.coworking === currentUser.name);
+            const totalEquity = sponsoredAgreements.reduce((sum, a) => sum + parseFloat(a.equity), 0);
+            document.getElementById('coworking-total-equity').textContent = `${totalEquity.toFixed(1)}%`;
+
+            // 3. Renderizar Startups Patrocinadas
+            const sponsoredListEl = document.getElementById('coworking-sponsored-list');
+            sponsoredListEl.innerHTML = '';
+            
+            if (sponsoredAgreements.length === 0) {
+                sponsoredListEl.innerHTML = '<li class="text-gray-500">Aún no hay startups patrocinadas activas. ¡Registra un acuerdo!</li>';
+                return;
+            }
+
+            sponsoredAgreements.forEach(a => {
+                const listItem = document.createElement('li');
+                listItem.className = 'flex justify-between items-center p-3 bg-gray-50 rounded-lg';
+                listItem.innerHTML = `
+                    <div>
+                        <p class="font-semibold text-gray-700">${a.startup} (${a.sector})</p>
+                        <p class="text-xs text-gray-500">Inversor Líder: ${a.investor}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-sm text-blue-600">${a.equity}% Equity</p>
+                        <p class="text-xs text-red-500">${a.coworking === actors.startupDefault.coworking ? 'Activo' : 'Finalizado'}</p>
+                    </div>
+                `;
+                sponsoredListEl.appendChild(listItem);
+            });
+        }
+
+        /**
+         * Renderiza el perfil de la Startup.
+         */
+        function renderStartupView() {
+            const myStartup = agreements.find(a => a.startup === currentUser.name);
+            
+            if (!myStartup) {
+                // Si la startup por defecto no está en agreements (ej. si se eliminó), usamos los datos de la BD simulada
+                myStartup = actors.startupDefault; 
+            }
+            
+            // 1. Mostrar información principal de la Startup
+            document.getElementById('startup-investor').textContent = myStartup.investor;
+            document.getElementById('startup-coworking').textContent = myStartup.coworking;
+            document.getElementById('startup-investment').textContent = `$${myStartup.amount.toLocaleString('es-AR')}`;
+            document.getElementById('startup-stage').textContent = myStartup.stage || STAGES[0]; // Mostrar etapa
+            
+            // 2. Renderizar oportunidades de Coworking (si necesita cambiar o conseguir uno)
+            const opportunitiesEl = document.getElementById('startup-coworking-opportunities');
+            opportunitiesEl.innerHTML = '';
+
+            // Mostrar solo coworkings que tienen slots libres
+            const availableCoworkings = actors.coworkings.filter(c => c.usedSlots < c.maxSlots);
+
+            if (availableCoworkings.length === 0) {
+                 const row = opportunitiesEl.insertRow();
+                 row.insertCell().colSpan = 4;
+                 row.insertCell().textContent = 'No hay Coworkings con slots ociosos libres en este momento.';
+                 return;
+            }
+
+            availableCoworkings.forEach(c => {
+                 const row = opportunitiesEl.insertRow();
+                 row.className = 'hover:bg-gray-50';
+
+                 row.insertCell().textContent = c.name;
+                 row.insertCell().textContent = `${c.maxSlots - c.usedSlots}`;
+                 row.insertCell().textContent = `$${c.tgiBenefit.toLocaleString('es-AR')}`;
+                 
+                 const actionCell = row.insertCell();
+                 const button = document.createElement('button');
+                 button.textContent = c.name === myStartup.coworking ? 'Patrocinador Actual' : 'Solicitar Slot';
+                 button.className = c.name === myStartup.coworking 
+                    ? 'bg-gray-400 text-white text-xs py-1 px-3 rounded-full cursor-not-allowed'
+                    : 'bg-green-500 hover:bg-green-600 text-white text-xs py-1 px-3 rounded-full';
+                 button.disabled = c.name === myStartup.coworking;
+                 button.onclick = () => showMessage(`Simulación: Solicitud de slot enviada a ${c.name}.`, 'info');
+                 actionCell.appendChild(button);
+            });
+        }
+
+        /**
+         * Maneja el envío del formulario para registrar un nuevo acuerdo.
+         */
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+            const newAgreement = Object.fromEntries(formData.entries());
+
+            // 1. Validación de slot disponible en el Coworking
+            const selectedCoworking = actors.coworkings.find(c => c.name === newAgreement.coworking);
+            if (!selectedCoworking) {
+                showMessage("Error: Coworking no encontrado.", 'error');
+                return;
+            }
+
+            if (selectedCoworking.usedSlots >= selectedCoworking.maxSlots) {
+                showMessage(`Error: El coworking ${selectedCoworking.name} no tiene slots ociosos disponibles.`, 'error');
+                return;
+            }
+
+            // 2. Añadir acuerdo, asignar etapa y actualizar slots/equity
+            newAgreement.stage = STAGES[1]; // Nueva startup comienza en Prototipo
+            agreements.push(newAgreement);
+            selectedCoworking.usedSlots += 1; // Ocupar un slot
+            selectedCoworking.equityAccumulated += parseFloat(newAgreement.equity);
+
+            // 3. Actualizar UI
+            form.reset();
+            showMessage(`Acuerdo de Patrocinio con ${newAgreement.startup} registrado con éxito.`, 'success');
+            
+            // Volver a la vista del selector
+            showView('selector');
+        }
+
+        /**
+         * Elimina un acuerdo, simulando su finalización.
+         * Esta función ya no se usa en el MVP de perfiles, pero se mantiene si se necesita una acción de gestión.
+         */
+        function removeAgreement(startupName) {
+            const index = agreements.findIndex(a => a.startup === startupName);
+            if (index === -1) return;
+
+            const agreementToRemove = agreements[index];
+            
+            // Liberar el slot en el Coworking y descontar equity
+            const selectedCoworking = actors.coworkings.find(c => c.name === agreementToRemove.coworking);
+            if (selectedCoworking && selectedCoworking.usedSlots > 0) {
+                selectedCoworking.usedSlots -= 1;
+                selectedCoworking.equityAccumulated -= parseFloat(agreementToRemove.equity);
+            }
+
+            // Eliminar de la lista de acuerdos
+            agreements.splice(index, 1);
+
+            showMessage(`Acuerdo con ${agreementToRemove.startup} finalizado. Slot liberado.`, 'success');
+            
+            // Re-renderizar la vista actual (si está abierta)
+            showView(currentUser.role.toLowerCase());
+        }
+
+
+        // --- CARGA DE DATOS DE PRUEBA (OPCIONAL) Y SETUP INICIAL ---
+        
+        /**
+         * Carga datos iniciales para simular un ecosistema activo.
+         */
+        function loadInitialData() {
+            const coworking1 = actors.coworkings.find(c => c.name === "Workspace Central");
+            const coworking2 = actors.coworkings.find(c => c.name === "TechHub Rio");
+            const coworking3 = actors.coworkings.find(c => c.name === "AgTech Garage");
+
+            if (coworking1 && coworking2 && coworking3) {
+                // 1. FinTrack ERP (Coworking 1, Inversor A)
+                agreements.push({
+                    startup: "FinTrack ERP",
+                    sector: "FinTech",
+                    coworking: "Workspace Central",
+                    investor: "Ángel Inversor A",
+                    amount: 8000,
+                    equity: 1.0,
+                    stage: STAGES[2] // Validación de Producto
+                });
+                coworking1.usedSlots += 1;
+                coworking1.equityAccumulated += 1.0;
+
+                // 2. AgroSense AI (Coworking 2, Inversor B - Startup de referencia)
+                agreements.push({
+                    startup: "AgroSense AI",
+                    sector: "AgTech",
+                    coworking: "TechHub Rio",
+                    investor: "Fondo Semilla B",
+                    amount: 10000,
+                    equity: 0.8,
+                    stage: STAGES[3] // Crecimiento Inicial
+                });
+                coworking2.usedSlots += 1;
+                coworking2.equityAccumulated += 0.8;
+                
+                 // 3. LogísticaGO (Coworking 3, Inversor C - El inversor de referencia)
+                agreements.push({
+                    startup: "LogísticaGO",
+                    sector: "Logística",
+                    coworking: "AgTech Garage",
+                    investor: "VC Local C", 
+                    amount: 15000,
+                    equity: 0.5,
+                    stage: STAGES[4] // Escalamiento
+                });
+                coworking3.usedSlots += 1;
+                coworking3.equityAccumulated += 0.5;
+                
+                 // 4. CityData (Coworking 1, Inversor C - El inversor de referencia)
+                agreements.push({
+                    startup: "CityData",
+                    sector: "Civic Tech",
+                    coworking: "Workspace Central",
+                    investor: "VC Local C", 
+                    amount: 5000,
+                    equity: 1.2,
+                    stage: STAGES[1] // Prototipo
+                });
+                coworking1.usedSlots += 1;
+                coworking1.equityAccumulated += 1.2;
+
+            }
+        }
+
+        // --- INICIALIZACIÓN DE LA APLICACIÓN ---
+        window.onload = function() {
+            // Cargar los datos iniciales de prueba
+            loadInitialData();
+            
+            // Asignar el listener al formulario de registro
+            document.getElementById('agreement-form').addEventListener('submit', handleFormSubmit);
+
+            // Mostrar la vista de selección de perfil por defecto
+            showView('selector');
+        };
+
+    </script>
+</body>
+</html>
