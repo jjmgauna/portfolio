@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus: Intercambio de Servicios y Trueque</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .tab-btn.active {
+            background-color: #4f46e5;
+            color: white;
+            border-bottom: 3px solid #6366f1;
+        }
+        .message-box {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 100;
+            transition: opacity 0.3s ease-in-out;
+        }
+        /* Estilo para simular el iframe de YouTube */
+        .youtube-placeholder {
+            background-image: url('https://placehold.co/600x400/333333/ffffff?text=Video+de+YouTube');
+            background-size: cover;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <div id="loading-overlay" class="fixed inset-0 bg-white/70 flex items-center justify-center z-50">
+        <div class="flex flex-col items-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            <p class="mt-4 text-indigo-600 font-semibold">Cargando aplicación (Datos en memoria)...</p>
+        </div>
+    </div>
+
+    <!-- Mensaje de Notificación/Alerta -->
+    <div id="notification-box" class="message-box bg-green-500 text-white p-4 rounded-lg shadow-xl hidden"></div>
+
+    <div id="app-container" class="container mx-auto p-4 md:p-8 pt-0 hidden">
+        <!-- Encabezado y Balance de Créditos -->
+        <header class="sticky top-0 bg-gray-50 z-10 py-4 shadow-sm border-b border-gray-200">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-3xl font-bold text-indigo-700">Nexus</h1>
+                <div class="text-right">
+                    <p id="user-id-display" class="text-xs text-gray-500 truncate" title="ID de Usuario"></p>
+                    <div class="flex items-center space-x-2 mt-1 bg-indigo-100 p-2 rounded-lg shadow-inner">
+                        <span class="text-xl font-extrabold text-indigo-900" id="credit-balance">0</span>
+                        <span class="text-indigo-700 font-medium">Créditos (NX)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navegación de Pestañas -->
+            <nav class="flex border-b border-gray-300 overflow-x-auto whitespace-nowrap">
+                <button id="tab-profile" data-tab="profile" class="tab-btn active px-4 py-2 text-sm md:text-base font-medium text-indigo-600 transition duration-150">
+                    Perfil
+                </button>
+                <button id="tab-jobs" data-tab="jobs" class="tab-btn px-4 py-2 text-sm md:text-base font-medium text-gray-600 hover:text-indigo-600 transition duration-150">
+                    Muro de Trueque (Trabajos)
+                </button>
+                <button id="tab-workers" data-tab="workers" class="tab-btn px-4 py-2 text-sm md:text-base font-medium text-gray-600 hover:text-indigo-600 transition duration-150">
+                    Buscar Colaboradores
+                </button>
+                <button id="tab-news" data-tab="news" class="tab-btn px-4 py-2 text-sm md:text-base font-medium text-gray-600 hover:text-indigo-600 transition duration-150">
+                    Novedades y Blog
+                </button>
+                <button id="tab-redeem" data-tab="redeem" class="tab-btn px-4 py-2 text-sm md:text-base font-medium text-gray-600 hover:text-indigo-600 transition duration-150">
+                    Canjear Créditos
+                </button>
+            </nav>
+        </header>
+
+        <!-- Contenido de las Pestañas -->
+        <main class="py-6">
+            <!-- Pestaña 1: Perfil (por defecto) -->
+            <section id="content-profile" class="tab-content space-y-8">
+                <div id="profile-card" class="bg-white p-6 rounded-xl shadow-lg border border-indigo-200">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Mi Perfil</h2>
+                    
+                    <!-- Avatar Section -->
+                    <div class="flex items-center space-x-4 mb-6">
+                        <img id="profile-avatar" src="Perfil.jpeg" alt="Avatar de Usuario" class="w-16 h-16 rounded-full object-cover border-4 border-indigo-300">
+                        <div>
+                            <p id="profile-name" class="text-xl font-bold text-gray-900"></p>
+                            <!--<label class="text-sm font-medium text-gray-500">Haz clic para cambiar imagen (no implementado en MVP)</label>-->
+                        </div>
+                    </div>
+                    <!-- End Avatar Section -->
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex flex-col">
+                            <label class="text-sm font-medium text-gray-500">Profesión</label>
+                            <input id="profile-profession" type="text" placeholder="Ej: Plomero, Electricista, Diseñador" class="mt-1 p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-sm font-medium text-gray-500">Reputación Promedio</label>
+                            <p id="profile-rating" class="text-2xl font-bold text-yellow-500">0.0 <span class="text-base font-normal text-gray-600">/ 5 estrellas</span></p>
+                            <p id="profile-rating-count" class="text-xs text-gray-500"></p>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-sm font-medium text-gray-500">Créditos (NX)</label>
+                            <p class="text-2xl font-bold text-indigo-600" id="profile-credits">0</p>
+                        </div>
+                    </div>
+                    <button id="save-profile-btn" class="mt-6 w-full md:w-auto px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-200 shadow-md">
+                        Guardar Perfil
+                    </button>
+                </div>
+
+                <!-- Publicar Nuevo Trabajo -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-green-200">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Publicar Nuevo Trabajo / Servicio</h2>
+                    <div class="space-y-4">
+                        <input id="job-title" type="text" placeholder="Título del Trabajo (Ej: Arreglar grifo del baño)" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+                        <textarea id="job-description" placeholder="Descripción detallada del trabajo o servicio ofrecido/solicitado." rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500"></textarea>
+                        <input id="job-cost" type="number" placeholder="Costo en Créditos NX (Ej: 50)" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+                        <button id="post-job-btn" class="w-full px-4 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-200 shadow-md">
+                            Publicar Trabajo
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pestaña 2: Muro de Trueque (Trabajos Disponibles) -->
+            <section id="content-jobs" class="tab-content space-y-4 hidden">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Muro de Trueque (Ofertas de Trabajos)</h2>
+                
+                <!-- Banner de Publicidad Discreto -->
+                <div class="w-full bg-blue-50 p-3 rounded-lg text-center border border-blue-200 mb-6">
+                    <p class="text-sm text-blue-700 font-semibold">SPONSOR: ¿Necesitas una APP? visita: www.advanceit.com.ar</p>
+                </div>
+                
+                <div id="jobs-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Los trabajos se cargarán aquí -->
+                    <p id="no-jobs" class="text-gray-500 italic md:col-span-3">Cargando trabajos...</p>
+                </div>
+            </section>
+            
+            <!-- Pestaña 3: Buscar Colaboradores -->
+            <section id="content-workers" class="tab-content space-y-4 hidden">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Colaboradores y Profesionales de la Comunidad</h2>
+
+                <!-- Banner de Publicidad Discreto -->
+                <div class="w-full bg-pink-50 p-3 rounded-lg text-center border border-pink-200 mb-6">
+                    <p class="text-sm text-pink-700 font-semibold">SPONSOR: ¡Curso de Periodismo con 30% de descuento en NX!</p>
+                </div>
+
+                <div id="workers-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Los perfiles de otros trabajadores se cargarán aquí -->
+                    <p id="no-workers" class="text-gray-500 italic md:col-span-3">Cargando perfiles...</p>
+                </div>
+            </section>
+
+            <!-- Pestaña 4: Novedades (Blog) y Publicidad -->
+            <section id="content-news" class="tab-content space-y-8 hidden">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Novedades y Blog de la Comunidad Nexus</h2>
+
+                <!-- Banner de Publicidad (Simulación de monetización) -->
+                <div class="bg-blue-100 p-4 rounded-xl shadow-lg border-4 border-blue-400 text-center animate-pulse">
+                    <p class="text-xs text-blue-600 font-semibold mb-2">PUBLICIDAD (Fuente de Ingresos Principal)</p>
+                    <h3 class="text-xl font-extrabold text-blue-800">¡Gana 10 NX EXTRA!</h3>
+                    <p class="text-sm text-blue-700">Afíliate a "Herramientas Pro" y recibe créditos de bienvenida. ¡Haz clic aquí!</p>
+                </div>
+                <!-- Fin Banner Publicidad -->
+
+                    
+                    <!-- Video (Embed de YouTube Real) -->
+                <div class="bg-gray-200 p-4 rounded-xl shadow-md">
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Oficios: Jornada Zapatero - Contenido de Valor </h3>
+                    <!-- Sección de IFRAME de YouTube - Corregida para ser responsive -->
+                    <div class="aspect-video rounded-lg overflow-hidden">
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/cZ0TR_NIcoQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <!-- Fin Sección de IFRAME de YouTube -->
+                    <p class="text-xs text-gray-500 mt-2">Video de Contenido de Valor Patrocinado.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Noticia 1 -->
+                    <div class="bg-white p-5 rounded-xl shadow-md border border-gray-200">
+                        <span class="text-xs font-semibold text-indigo-500 uppercase">Actualización</span>
+                        <h3 class="text-xl font-bold text-gray-800 my-1">Nexus lanza su nuevo sistema de Referidos</h3>
+                        <p class="text-gray-600 text-sm">Ahora puedes invitar a tus amigos y colegas. Ambos ganan 20 NX cuando el referido completa su primer trabajo. ¡Corre la voz y aumenta tu balance!</p>
+                        <p class="text-xs text-gray-400 mt-3">Publicado el 11/11/2025</p>
+                    </div>
+
+                    <!-- Noticia 2 -->
+                    <div class="bg-white p-5 rounded-xl shadow-md border border-gray-200">
+                        <span class="text-xs font-semibold text-green-500 uppercase">Éxito Comunitario</span>
+                        <h3 class="text-xl font-bold text-gray-800 my-1">"El Grano" ya ha canjeado más de 500 NX</h3>
+                        <p class="text-gray-600 text-sm">Nuestra cafetería adherida está marcando un hito. La comunidad está utilizando sus créditos para disfrutar de sus desayunos. ¡Gracias por apoyar la economía circular!</p>
+                        <p class="text-xs text-gray-400 mt-3">Publicado el 05/11/2025</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pestaña 5: Canjear Créditos -->
+            <section id="content-redeem" class="tab-content space-y-4 hidden">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Canje en Comercios Adheridos</h2>
+                <div id="redeem-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Comercios Adheridos (Simulados) -->
+                    <div class="bg-white p-5 rounded-xl shadow-md border border-red-200 space-y-3">
+                        <h3 class="text-xl font-bold text-red-600">Cafetería "El Grano"</h3>
+                        <p class="text-gray-600 text-sm">Canjea 20 NX por un combo de café y pastelería.</p>
+                        <button onclick="attemptRedeem(20, 'Cafetería El Grano')" class="w-full px-3 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-200">
+                            Canjear (20 NX)
+                        </button>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-md border border-red-200 space-y-3">
+                        <h3 class="text-xl font-bold text-red-600">Ferretería "El Tornillo"</h3>
+                        <p class="text-gray-600 text-sm">Canjea 50 NX por un kit básico de herramientas.</p>
+                        <button onclick="attemptRedeem(50, 'Ferretería El Tornillo')" class="w-full px-3 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-200">
+                            Canjear (50 NX)
+                        </button>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-md border border-red-200 space-y-3">
+                        <h3 class="text-xl font-bold text-red-600">Tienda de Ropa Usada "VintAge"</h3>
+                        <p class="text-gray-600 text-sm">Canjea 30 NX por una prenda a elección.</p>
+                        <button onclick="attemptRedeem(30, 'Tienda VintAge')" class="w-full px-3 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-200">
+                            Canjear (30 NX)
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Script de Lógica del MVP (Sin Firebase) -->
+    <script>
+        // --- Variables Globales y Datos en Memoria ---
+        const COMMISSION_RATE = 0.05; // 5% de comisión por transacción
+        let userId = crypto.randomUUID(); // Generamos un ID de usuario único simulado
+        let userData; // Almacenará el perfil del usuario actual
+        let allJobs;  // Almacenará todos los trabajos (incluyendo demo)
+        let allWorkers; // Almacenará otros trabajadores (demo)
+
+        // --- Funciones de Inicialización de Datos de Demostración ---
+        function setupInitialData() {
+            // Datos de los trabajadores de demostración
+            const demoWorkersList = [
+                { id: 'worker1', name: 'Alba García', profession: 'Electricista Certificada', credits: 50, ratings: [5, 5, 4, 5], avatarText: 'AG' },
+                { id: 'worker2', name: 'Roberto Díaz', profession: 'Diseñador Web y Gráfico', credits: 75, ratings: [4, 4, 3, 5], avatarText: 'RD' },
+                { id: 'worker3', name: 'Claudio Pérez', profession: 'Plomero y Gasista', credits: 120, ratings: [5, 5, 5, 5, 4], avatarText: 'CP' },
+                { id: 'worker4', name: 'Laura Gómez', profession: 'Clases de Idiomas (Inglés)', credits: 30, ratings: [4, 3], avatarText: 'LG' },
+                { id: 'seller1', name: 'Tienda Vinted', profession: 'Venta de Ropa Usada', credits: 10, ratings: [5, 5], avatarText: 'TV' }
+            ].map(worker => ({
+                ...worker,
+                avatarUrl: `https://placehold.co/100x100/4f46e5/ffffff?text=${worker.avatarText}`
+            }));
+            
+            allWorkers = demoWorkersList;
+
+            // Perfil inicial del usuario (simulando nuevo usuario)
+            const initials = userId.substring(0, 2).toUpperCase();
+            userData = {
+                id: userId,
+                name: userId.substring(0, 8),
+                profession: 'Nuevo Usuario',
+                credits: 100, // Créditos iniciales de bienvenida
+                ratings: [5, 4, 5], // Ratings iniciales de ejemplo
+                avatarUrl: `https://placehold.co/100x100/4f46e5/ffffff?text=${initials}`
+            };
+            allWorkers.push(userData); // El usuario actual también está en la lista de trabajadores
+
+            // Trabajos de Demostración
+            allJobs = [
+                { id: 'job_a', title: 'Necesito ayuda para montar un mueble de cocina', description: 'Compré un mueble y las instrucciones son confusas. Pago 40 NX.', creditsCost: 40, userId: 'worker1', status: 'available', timestamp: Date.now() - 3600000 },
+                { id: 'job_b', title: 'Diseño de Logo para Emprendimiento Local', description: 'Busco un diseñador que me ayude con un logo simple para mi cafetería. Pago 80 NX.', creditsCost: 80, userId: 'worker3', status: 'available', timestamp: Date.now() - 7200000 },
+                { id: 'job_c', title: 'Venta de Bicicleta Usada (MTB)', description: 'Bicicleta de montaña en buen estado, ideal para empezar. 150 NX.', creditsCost: 150, userId: 'seller1', status: 'available', timestamp: Date.now() - 10800000 }
+            ];
+
+            // Mensaje de bienvenida/setup
+            showNotification('¡Bienvenido a Nexus! Los datos son simulados (en memoria).', false);
+        }
+
+        // --- Utilidades ---
+        function showNotification(message, isError = false) {
+            const box = document.getElementById('notification-box');
+            box.textContent = message;
+            box.classList.remove('hidden', 'bg-green-500', 'bg-red-500');
+            box.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
+            setTimeout(() => {
+                box.classList.add('hidden');
+            }, 3000);
+        }
+
+        function formatRating(ratings) {
+            if (!ratings || ratings.length === 0) return { avg: '0.0', count: 0 };
+            const sum = ratings.reduce((acc, r) => acc + r, 0);
+            const avg = (sum / ratings.length).toFixed(1);
+            return { avg, count: ratings.length };
+        }
+
+        // --- Lógica de Renderizado ---
+        function updateUI() {
+            // Actualizar UI del Perfil
+            const ratingInfo = formatRating(userData.ratings);
+            document.getElementById('credit-balance').textContent = userData.credits;
+            document.getElementById('profile-credits').textContent = userData.credits;
+            document.getElementById('user-id-display').textContent = 'ID: ' + userId.substring(0, 15) + '...';
+            document.getElementById('profile-name').textContent = userData.name || userId.substring(0, 8);
+            document.getElementById('profile-profession').value = userData.profession || '';
+            document.getElementById('profile-rating').innerHTML = `${ratingInfo.avg} <span class="text-base font-normal text-gray-600">/ 5 estrellas</span>`;
+            document.getElementById('profile-rating-count').textContent = `Basado en ${ratingInfo.count} evaluaciones`;
+            
+            const initials = (userData.name || userId.substring(0, 8)).substring(0, 2).toUpperCase();
+            //document.getElementById('profile-avatar').src = userData.avatarUrl || `https://placehold.co/100x100/4f46e5/ffffff?text=${initials}`;
+
+            // Renderizar Trabajos y Colaboradores
+            renderJobs(allJobs);
+            renderWorkers(allWorkers);
+        }
+
+        function renderJobs(jobsData) {
+            const jobsList = document.getElementById('jobs-list');
+            jobsList.innerHTML = '';
+            
+            // Añadir el banner de publicidad fijo (incluido en el HTML base)
+            const adBanner = document.createElement('div');
+            adBanner.className = 'w-full bg-orange-50 p-3 rounded-lg text-center border border-orange-200 mb-6 md:col-span-3 lg:col-span-3';
+            adBanner.innerHTML = '<p class="text-sm text-orange-700 font-semibold">SPONSOR: ¿Buscas Material Eléctrico? ¡Visita Ferretería El Tornillo y paga con NX!</p>';
+            jobsList.appendChild(adBanner);
+
+            const availableJobs = jobsData.filter(job => job.status === 'available');
+
+            if (availableJobs.length === 0) {
+                jobsList.innerHTML += '<p class="text-gray-500 italic md:col-span-3 text-center">No hay trabajos ni trueques publicados por el momento. ¡Sé el primero!</p>';
+                return;
+            }
+
+            availableJobs.forEach(job => {
+                const isMine = job.userId === userId;
+                const card = document.createElement('div');
+                card.className = 'bg-white p-5 rounded-xl shadow-lg border ' + (isMine ? 'border-yellow-300' : 'border-indigo-300');
+                card.innerHTML = `
+                    <h3 class="text-xl font-bold text-indigo-700">${job.title}</h3>
+                    <p class="text-xs text-gray-500 mb-2 truncate" title="Publicado por: ${job.userId}">Publicado por: ${job.userId}</p>
+                    <p class="text-sm text-gray-700 mb-3">${job.description}</p>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-2xl font-extrabold text-green-600">${job.creditsCost} NX</span>
+                        ${!isMine ? `<button data-job-id="${job.id}" data-cost="${job.creditsCost}" class="accept-job-btn px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-200">
+                            Aceptar Trabajo
+                        </button>` : `<span class="px-3 py-1 text-sm bg-yellow-100 text-yellow-800 rounded-full font-semibold">Mi Publicación</span>`}
+                    </div>
+                `;
+                jobsList.appendChild(card);
+            });
+
+            document.querySelectorAll('.accept-job-btn').forEach(button => {
+                // Remove previous listeners to prevent multiple execution (essential for in-memory updates)
+                button.replaceWith(button.cloneNode(true));
+            });
+            document.querySelectorAll('.accept-job-btn').forEach(button => {
+                button.addEventListener('click', handleAcceptJob);
+            });
+        }
+        
+        function renderWorkers(workersData) {
+            const workersList = document.getElementById('workers-list');
+            workersList.innerHTML = '';
+            
+            // Añadir el banner de publicidad fijo (incluido en el HTML base)
+            const adBanner = document.createElement('div');
+            adBanner.className = 'w-full bg-pink-50 p-3 rounded-lg text-center border border-pink-200 mb-6 md:col-span-3 lg:col-span-3';
+            adBanner.innerHTML = '<p class="text-sm text-pink-700 font-semibold">SPONSOR: ¡Curso de Diseño Web con 50% de descuento en NX! Aprende a ser un top rated colaborador.</p>';
+            workersList.appendChild(adBanner);
+
+            // Filtrar al usuario actual
+            const otherWorkers = workersData.filter(worker => worker.id !== userId);
+            
+            if (otherWorkers.length === 0) {
+                workersList.innerHTML += '<p id="no-workers" class="text-gray-500 italic md:col-span-3 text-center">No hay otros trabajadores registrados en la base de datos.</p>';
+                return;
+            }
+
+            otherWorkers.forEach(worker => {
+                const ratingInfo = formatRating(worker.ratings);
+                const initials = (worker.name || worker.id.substring(0, 8)).substring(0, 2).toUpperCase();
+                const avatarUrl = worker.avatarUrl || `https://placehold.co/100x100/4f46e5/ffffff?text=${initials}`;
+
+                const card = document.createElement('div');
+                card.className = 'bg-white p-5 rounded-xl shadow-lg border border-purple-300 space-y-3 flex flex-col items-center text-center';
+                card.innerHTML = `
+                    <img src="${avatarUrl}" alt="Avatar" class="w-16 h-16 rounded-full object-cover border-4 border-purple-200 mb-2">
+                    <h3 class="text-xl font-bold text-purple-700">${worker.name}</h3>
+                    <p class="text-sm font-semibold text-gray-800">${worker.profession}</p>
+                    <div class="flex items-center text-yellow-500 text-lg">
+                        ${'★'.repeat(Math.round(parseFloat(ratingInfo.avg)))}
+                        ${'☆'.repeat(5 - Math.round(parseFloat(ratingInfo.avg)))}
+                        <span class="ml-2 text-base font-medium text-gray-600">${ratingInfo.avg} (${ratingInfo.count})</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">ID: ${worker.id.substring(0, 15)}...</p>
+                    <button data-worker-id="${worker.id}" class="contact-worker-btn mt-3 w-full px-4 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition duration-200">
+                        Solicitar Trabajo / Contactar
+                    </button>
+                `;
+                workersList.appendChild(card);
+            });
+
+            document.querySelectorAll('.contact-worker-btn').forEach(button => {
+                button.replaceWith(button.cloneNode(true));
+            });
+            document.querySelectorAll('.contact-worker-btn').forEach(button => {
+                button.addEventListener('click', handleContactWorker);
+            });
+        }
+        
+        function handleContactWorker(event) {
+            const workerId = event.target.getAttribute('data-worker-id');
+            showNotification(`Simulación: Mensaje enviado a ${workerId.substring(0, 8)} para iniciar un intercambio.`, false);
+        }
+
+        // --- Lógica de Manejo de Eventos (Ahora sincrónica) ---
+
+        function saveUserProfile() {
+            const profession = document.getElementById('profile-profession').value.trim();
+            
+            userData.profession = profession || 'Sin especificar';
+            
+            // Actualizar la lista global de trabajadores con el perfil actualizado
+            const userIndex = allWorkers.findIndex(w => w.id === userId);
+            if (userIndex !== -1) {
+                allWorkers[userIndex] = userData;
+            }
+
+            updateUI();
+            showNotification('Perfil guardado exitosamente.', false);
+        }
+
+        function postNewJob() {
+            const title = document.getElementById('job-title').value.trim();
+            const description = document.getElementById('job-description').value.trim();
+            const cost = parseInt(document.getElementById('job-cost').value, 10);
+
+            if (!title || !description || isNaN(cost) || cost <= 0) {
+                showNotification('Por favor, completa todos los campos de trabajo con un costo válido.', true);
+                return;
+            }
+            
+            const newJob = {
+                id: crypto.randomUUID(),
+                title,
+                description,
+                creditsCost: cost,
+                userId,
+                timestamp: Date.now(),
+                status: 'available'
+            };
+
+            allJobs.unshift(newJob); // Añadir al inicio de la lista
+
+            document.getElementById('job-title').value = '';
+            document.getElementById('job-description').value = '';
+            document.getElementById('job-cost').value = '';
+            
+            updateUI();
+            showNotification('Trabajo publicado exitosamente. ¡A la espera de un colega!', false);
+        }
+
+        function handleAcceptJob(event) {
+            const button = event.target;
+            const jobId = button.getAttribute('data-job-id');
+            const totalCost = parseInt(button.getAttribute('data-cost'), 10);
+            
+            // Cálculo de la comisión
+            const commission = Math.round(totalCost * COMMISSION_RATE);
+            const netEarnings = totalCost - commission;
+
+            if (confirm(`¿Estás seguro que quieres ACEPTAR este trabajo por ${totalCost} NX? Se aplicará una comisión del ${COMMISSION_RATE * 100}% (${commission} NX) al finalizar. Ganancia neta: ${netEarnings} NX.`)) {
+                
+                // 1. Marcar el trabajo como "completado"
+                const jobIndex = allJobs.findIndex(job => job.id === jobId);
+                if (jobIndex !== -1) {
+                    allJobs[jobIndex].status = 'completed';
+                    allJobs[jobIndex].acceptedBy = userId;
+                    allJobs[jobIndex].commissionCollected = commission;
+                }
+
+                // 2. Acreditar los NX NETOS al usuario actual
+                userData.credits += netEarnings;
+                
+                // 3. (Simulación de la transacción completa)
+                // Se debería descontar el totalCost al usuario que publicó (no implementado en el MVP actual)
+
+                updateUI();
+                showNotification(`¡Trabajo completado! Has ganado ${netEarnings} NX netos (Comisión: ${commission} NX).`, false);
+            }
+        }
+
+        window.attemptRedeem = function(cost, merchant) {
+            if (userData.credits < cost) {
+                showNotification(`No tienes suficientes créditos (${userData.credits} NX). Necesitas ${cost} NX.`, true);
+                return;
+            }
+
+            if (confirm(`¿Confirmas el canje de ${cost} NX en ${merchant}?`)) {
+                userData.credits -= cost;
+                
+                updateUI();
+                showNotification(`Canje exitoso! Se descontaron ${cost} NX para ${merchant}.`, false);
+            }
+        }
+
+        // --- Event Listeners Iniciales y Carga ---
+        window.onload = function() {
+            setupInitialData();
+            updateUI();
+            
+            document.getElementById('loading-overlay').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+
+            document.getElementById('save-profile-btn').addEventListener('click', saveUserProfile);
+            document.getElementById('post-job-btn').addEventListener('click', postNewJob);
+
+            // Manejo de la navegación de pestañas
+            document.querySelectorAll('.tab-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const targetTab = e.target.getAttribute('data-tab');
+
+                    // Desactivar todos los botones y contenidos
+                    document.querySelectorAll('.tab-btn').forEach(btn => {
+                        btn.classList.remove('active', 'text-indigo-600', 'border-indigo-600');
+                        btn.classList.add('text-gray-600');
+                    });
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+
+                    // Activar el botón y contenido seleccionado
+                    e.target.classList.add('active', 'text-indigo-600');
+                    e.target.classList.remove('text-gray-600');
+                    document.getElementById(`content-${targetTab}`).classList.remove('hidden');
+                });
+            });
+        }
+    </script>
+</body>
+</html>
