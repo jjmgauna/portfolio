@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>40+ Match Pro | Plataforma de Talento Sénior</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <style>
+        /* Estilos Personalizados */
+        body { background-color: #f8f9fa; padding-top: 20px; }
+        .header-custom {
+            background-color: #2c3e50; /* Azul Oscuro */
+            color: white; padding: 25px 0; margin-bottom: 30px;
+            border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .nav-link.active {
+            background-color: #e74c3c !important; /* Rojo Ladrillo - Branding */
+            color: white !important; border-radius: 5px;
+        }
+        .card-match { border-left: 5px solid #2ecc71; transition: transform 0.2s; }
+        .card-match:hover { transform: translateY(-3px); }
+        .badge-skill { background-color: #3498db; font-size: 0.85em; }
+        .match-score-pill { font-size: 1.1em; font-weight: bold; }
+        .profile-pic-sm { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #3498db; margin-right: 10px; }
+        .profile-pic-lg { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #e74c3c; }
+        .company-logo { width: 50px; height: 50px; object-fit: contain; opacity: 0.8; }
+        .course-card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px; background-color: #fff; }
+        .progress-bar-custom { height: 10px; background-color: #e74c3c; }
+        .video-placeholder {
+            min-height: 150px; background-color: #202020; color: white;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 6px; margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header-custom text-center">
+            <div class="d-flex justify-content-center align-items-center mb-2">
+                <img src="https://via.placeholder.com/50x50?text=LOGO" alt="Logo Empresa" class="company-logo me-3">
+                <h2 class="m-0"><i class="fas fa-layer-group me-2"></i> 40+ Match Pro</h2>
+            </div>
+            <p class="lead">Plataforma de Talento e Inclusión (Vista Múltiple)</p>
+        </header>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="match-tab" data-bs-toggle="tab" data-bs-target="#match-content" type="button" role="tab" aria-controls="match-content" aria-selected="true">
+                    <i class="fas fa-briefcase me-1"></i> DASHBOARD EMPRESARIAL
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="user-tab" data-bs-toggle="tab" data-bs-target="#user-content" type="button" role="tab" aria-controls="user-content" aria-selected="false">
+                    <i class="fas fa-user-circle me-1"></i> DASHBOARD TALENTO (+40)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reskilling-tab" data-bs-toggle="tab" data-bs-target="#reskilling-content" type="button" role="tab" aria-controls="reskilling-content" aria-selected="false">
+                    <i class="fas fa-graduation-cap me-1"></i> Campus de Re-skilling
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content bg-white p-4 border border-top-0 rounded-bottom">
+
+            <div class="tab-pane fade show active" id="match-content" role="tabpanel" aria-labelledby="match-tab">
+                <h3><i class="fas fa-search me-2"></i> Resultados de Match para: **Mentor de Procesos Operacionales**</h3>
+                <p class="text-muted">El algoritmo ha encontrado **4 Talento Sénior Certificado (CHS)** para su necesidad crítica.</p>
+                
+                <hr>
+
+                <div class="card card-match mb-3">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <img src="https://via.placeholder.com/150x150?text=Ana" alt="Foto Ana" class="profile-pic-sm me-3">
+                            <div>
+                                <h5 class="card-title text-primary m-0"> Ana María G. (52 años)</h5>
+                                <p class="card-text mb-1">
+                                    <span class="badge rounded-pill bg-success match-score-pill me-2">92% Match</span>
+                                    <span class="text-muted">Eje: **Optimización** | Re-skilling: **Agile Basics** (100% Certificado).</span>
+                                </p>
+                                <div class="mt-2">
+                                    <span class="badge rounded-pill badge-skill me-1">Gestión de Crisis (CHS)</span>
+                                    <span class="badge rounded-pill badge-skill me-1">Liderazgo de Equipos</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button class="btn btn-sm btn-success mb-2"><i class="fas fa-handshake me-1"></i> Contacto Premium</button><br>
+                            <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#profileModal">Ver Skills Detalle</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-match mb-3">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <img src="https://via.placeholder.com/150x150?text=Jorge" alt="Foto Jorge" class="profile-pic-sm me-3">
+                            <div>
+                                <h5 class="card-title text-primary m-0"> Jorge Pérez M. (47 años)</h5>
+                                <p class="card-text mb-1">
+                                    <span class="badge rounded-pill bg-warning text-dark match-score-pill me-2">85% Match</span>
+                                    <span class="text-muted">Eje: **Mantenimiento/Técnico** | Re-skilling: **Data Literacy** (50% en curso).</span>
+                                </p>
+                                <div class="mt-2">
+                                    <span class="badge rounded-pill badge-skill me-1">Diagnóstico Operacional</span>
+                                    <span class="badge rounded-pill badge-skill me-1">Seguridad Industrial</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button class="btn btn-sm btn-outline-success mb-2 disabled">A la espera de Certificación</button><br>
+                            <a href="#" class="text-primary">Ver Habilidades Pendientes</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card card-match mb-3">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <img src="https://via.placeholder.com/150x150?text=Elena" alt="Foto Elena" class="profile-pic-sm me-3">
+                            <div>
+                                <h5 class="card-title text-primary m-0"> Elena Ruiz (55 años)</h5>
+                                <p class="card-text mb-1">
+                                    <span class="badge rounded-pill bg-info match-score-pill me-2">78% Match</span>
+                                    <span class="text-muted">Eje: **Administración** | Re-skilling: **Emprendedora Silver-Preneur**.</span>
+                                </p>
+                                <div class="mt-2">
+                                    <span class="badge rounded-pill badge-skill me-1">Gestión Contable (Legacy)</span>
+                                    <span class="badge rounded-pill badge-skill me-1">Ventas y Negociación</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button class="btn btn-sm btn-success mb-2"><i class="fas fa-handshake me-1"></i> Contacto Premium</button><br>
+                            <a href="#" class="text-primary">Ver Detalles</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning mt-4" role="alert">
+                    <i class="fas fa-lock me-2"></i> **Modelo Freemium:** El acceso a los datos de contacto y la función *chat* requiere la **Suscripción Premium 40+**.
+                </div>
+
+            </div>
+            
+            <div class="tab-pane fade" id="user-content" role="tabpanel" aria-labelledby="user-tab">
+                <div class="d-flex align-items-center mb-4">
+                    <img src="https://via.placeholder.com/150x150?text=User" alt="Foto Usuario" class="profile-pic-lg me-4">
+                    <div>
+                        <h3>Hola, Ana María G.</h3>
+                        <p class="lead text-muted">¡Tu experiencia está lista para el Match! **52 años** | Logística y Gestión.</p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-md-7">
+                        <h4><i class="fas fa-medal me-2 text-warning"></i> Mis Insignias Digitales y Habilidades</h4>
+                        
+                        <div class="alert alert-success" role="alert">
+                            <i class="fas fa-check-circle me-1"></i> **Felicidades!** Has obtenido la Insignia **Agile Basics**. Tu Score de Match ha subido 7 puntos.
+                        </div>
+                        
+                        <h6 class="mt-3">Skills Digitales y Certificadas:</h6>
+                        <span class="badge rounded-pill badge-skill me-1 mb-2">Insignia: Agile Basics (Verificada)</span>
+                        <span class="badge rounded-pill badge-skill me-1 mb-2">Gestión de Crisis (CHS)</span>
+                        <span class="badge rounded-pill badge-skill me-1 mb-2">Optimización de Suministro</span>
+                        <span class="badge rounded-pill badge-skill me-1 mb-2">Liderazgo de Equipos</span>
+                        
+                        <h6 class="mt-4">Mis Matches Activos (Empresas Interesadas):</h6>
+                        <div class="list-group">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Mueblería El Roble (92% Match)
+                                <button class="btn btn-sm btn-outline-success disabled">En Revisión por Empresa</button>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Cooperativa Metalúrgica (88% Match)
+                                <button class="btn btn-sm btn-primary">Ver Mensaje (Chat)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5">
+                        <div class="card h-100 bg-light">
+                            <div class="card-body">
+                                <h4><i class="fas fa-file-alt me-2"></i> Mi Ficha Técnica (CV 4.0)</h4>
+                                <p><strong>Experiencia Relevante:</strong> Jefa de Administración y Logística (1998-2023).</p>
+                                <p><strong>Traducción de Valor:</strong> Expertos en **Optimización de Procesos** en contextos de recursos limitados.</p>
+                                <button class="btn btn-sm btn-outline-dark"><i class="fas fa-upload me-1"></i> Actualizar Ficha</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="reskilling-content" role="tabpanel" aria-labelledby="reskilling-tab">
+                <h3><i class="fas fa-book-reader me-2"></i> Campus de Micro-Habilidades Digitales</h3>
+                <p class="text-muted">Progreso individual de cursos para obtener **Insignias Digitales** (Visto desde el Talento +40).</p>
+                
+                <hr>
+
+                <div class="course-card">
+                    <h4>1. Curso: Fundamentos de Metodologías Ágiles (Agile Basics)</h4>
+                    <div class="video-placeholder">
+                        <i class="fab fa-youtube fa-2x me-2 text-danger"></i>
+                        Simulación Video Módulo 3: Roles y Responsabilidades
+                    </div>
+                    
+                    <h6 class="mt-3">Mi Progreso: </h6>
+                    <div class="progress mb-2" role="progressbar" aria-label="Progreso Curso 1" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar bg-success" style="width: 100%">100% Completado</div>
+                    </div>
+                    <button class="btn btn-sm btn-success disabled"><i class="fas fa-certificate me-1"></i> Insignia Emitida</button>
+                </div>
+
+                <div class="course-card">
+                    <h4>2. Curso: Introducción a Data Literacy y Gestión de Datos</h4>
+                    <div class="video-placeholder">
+                        <i class="fab fa-youtube fa-2x me-2 text-danger"></i>
+                        Simulación Video Módulo 1: La Importancia del Dato
+                    </div>
+                    
+                    <h6 class="mt-3">Mi Progreso: </h6>
+                    <div class="progress mb-2" role="progressbar" aria-label="Progreso Curso 2" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar progress-bar-custom" style="width: 30%">30% Completado</div>
+                    </div>
+                    <button class="btn btn-sm btn-primary"><i class="fas fa-play me-1"></i> Continuar</button>
+                </div>
+            </div>
+
+        </div> </div> <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="profileModalLabel">Perfil Detallado (Premium): Ana María G.</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Puntuación General:</strong> <span class="badge bg-success">9.2/10</span></p>
+                    <p><strong>Certificación Agile:</strong> <span class="badge bg-success">Finalizada y Verificada</span></p>
+                    <p><strong>Experiencia Relevante:</strong> 25 años de gestión de equipos y optimización de recursos.</p>
+                    <p class="text-danger">**Contactar a Ana María:** Requiere activación de la función Premium.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary disabled">Activar Contacto Premium</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
