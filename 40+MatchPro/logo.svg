@@ -1,0 +1,8 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Forma de Escudo/Insignia (Ahora con color acento) -->
+                        <path d="M20 15 L80 15 C85 15, 85 20, 80 25 L50 85 L20 25 C15 20, 15 15, 20 15 Z" fill="#e74c3c"/>
+                        <!-- Checkmark (Verificación - Verde Éxito) -->
+                        <path d="M35 50 L45 60 L65 40" stroke="#2ecc71" stroke-width="8" stroke-linecap="round"/>
+                        <!-- El +40 sobre el escudo (Blanco) -->
+                        <text x="50" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="white">40+</text>
+                    </svg>
