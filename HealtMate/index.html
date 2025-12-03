@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthMate Rosario v7.4 | Estabilidad Total</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    
+    <style>
+        /* Base y Tipografía */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        /* Simulación de Frame de App Móvil */
+        .phone-frame {
+            background-color: #fff;
+            width: 380px;
+            height: 700px;
+            border-radius: 30px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: relative; /* Contiene todos los elementos fijos */
+        }
+
+        /* ------------------------------------- */
+        /* COMPONENTES FIJOS (HEADER, PÁNICO, FOOTER) */
+        /* ------------------------------------- */
+
+        .app-header {
+            background-color: #004d99; 
+            background-image: linear-gradient(to right, #007bff, #004d99);
+            color: white;
+            padding: 15px 20px;
+            font-size: 1.5em;
+            font-weight: 700;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: absolute; /* Fijo respecto al frame */
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 20;
+            box-sizing: border-box; 
+            height: 56px;
+        }
+
+        /* Botón de Pánico ESTRATÉGICO (Fijo dentro del Header/Frame) */
+        #panic-button {
+            position: absolute; 
+            top: 8px; /* Ajuste dentro del header */
+            right: 15px;
+            width: 75px;
+            height: 40px;
+            border-radius: 8px;
+            background-color: #e53935; 
+            color: white;
+            border: none;
+            box-shadow: 0 4px 10px rgba(229, 57, 53, 0.6);
+            text-align: center;
+            font-size: 0.95em;
+            font-weight: 900;
+            cursor: pointer;
+            z-index: 50; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            letter-spacing: 0.5px;
+            padding: 0;
+        }
+        #panic-button:active { background-color: #c82333; transform: scale(0.98); }
+        
+        /* Footer de Navegación (Fijo abajo) */
+        .app-footer { 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 10px 0; 
+            border-top: 1px solid #ddd; 
+            background-color: #f8f9fa; 
+            position: absolute; /* Fijo respecto al frame */
+            bottom: 0;
+            width: 100%;
+            z-index: 30; 
+            height: 54px;
+        }
+        .footer-icon { text-align: center; color: #6c757d; cursor: pointer; font-size: 0.8em; width: 25%; padding: 5px 0; transition: color 0.2s; }
+        .footer-icon.active { color: #007bff; font-weight: bold; border-top: 2px solid #007bff; }
+
+        /* ------------------------------------- */
+        /* CONTENIDO DESPLAZABLE */
+        /* ------------------------------------- */
+        .app-content {
+            height: calc(100% - 110px); 
+            margin-top: 56px;
+            margin-bottom: 54px;
+            padding: 15px;
+            /* Margen de seguridad para que los botones de acción sean visibles */
+            padding-bottom: 40px; 
+            overflow-y: auto; 
+        }
+        
+        .screen { display: none; padding-bottom: 1px; } 
+        .card { background-color: #ffffff; border-radius: 15px; padding: 18px; margin-bottom: 18px; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); }
+
+        /* ------------------------------------- */
+        /* MAPA CORPORAL REALISTA */
+        /* ------------------------------------- */
+        #human-body-map { width: 150px; height: 350px; margin: 10px auto; position: relative; background-color: transparent; }
+        .realistic-part {
+            position: absolute; background-color: #fce4c4; border: 1px solid #ffcc80; opacity: 0.9; transition: all 0.2s; cursor: pointer; text-align: center; font-size: 0.7em; color: #333; line-height: normal; display: flex; justify-content: center; align-items: center; font-weight: 600; border-radius: 8px;
+        }
+        .realistic-part.selected { background-color: #e53935; border-color: #d84315; color: white; opacity: 1; box-shadow: 0 0 10px #e53935; z-index: 5; transform: scale(1.05); }
+        /* Posiciones ajustadas (se mantienen) */
+        #map-head { top: 0; left: 55px; width: 40px; height: 40px; border-radius: 50%; }
+        #map-chest { top: 40px; left: 45px; width: 60px; height: 65px; border-radius: 50% 50% 10px 10px; }
+        #map-abdomen { top: 105px; left: 48px; width: 54px; height: 35px; border-radius: 0 0 10px 10px; }
+        #map-lower-body { top: 140px; left: 40px; width: 70px; height: 25px; border-radius: 15px; } 
+        #map-arm-r { top: 60px; right: 28px; width: 15px; height: 90px; border-radius: 10px; transform: rotate(5deg); position: absolute; }
+        #map-arm-l { top: 60px; left: 28px; width: 15px; height: 90px; border-radius: 10px; transform: rotate(-5deg); position: absolute; }
+        #map-hand-r { top: 138px; right: 25px; width: 20px; height: 18px; border-radius: 5px; position: absolute; }
+        #map-hand-l { top: 138px; left: 25px; width: 20px; height: 18px; border-radius: 5px; position: absolute; }
+        #map-leg-r { top: 165px; left: 75px; width: 25px; height: 150px; border-radius: 12px; position: absolute; }
+        #map-leg-l { top: 165px; left: 50px; width: 25px; height: 150px; border-radius: 12px; position: absolute; }
+        #map-foot-r { top: 315px; left: 80px; width: 30px; height: 20px; border-radius: 5px; position: absolute; }
+        #map-foot-l { top: 315px; left: 40px; width: 30px; height: 20px; border-radius: 5px; position: absolute; }
+
+
+        /* Botones Generales */
+        .btn-action {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 15px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        .btn-action:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* Estilos de Crisis (location-screen - Se mantienen) */
+        #location-screen {
+            background-color: #e53935; color: white; height: 100%; display: none; flex-direction: column; justify-content: space-around; text-align: center; padding-top: 56px; padding-bottom: 54px; position: absolute; top: 0; left: 0; width: 100%; box-sizing: border-box; z-index: 40;
+        }
+        #location-screen button { background-color: #004d99; width: 80%; margin: 20px auto 40px auto; font-size: 1em; padding: 12px; }
+
+    </style>
+</head>
+<body>
+
+<div class="phone-frame">
+    <div id="panic-button">
+        🚨 PÁNICO
+    </div>
+
+    <div class="app-header" id="screen-title">
+        HealthMate | Triaje Corporal
+    </div>
+
+    <div class="app-content">
+        
+        <div id="triaje-screen" class="screen">
+            <div class="card">
+                <h3>Paso 1: ¿Dónde está el problema?</h3>
+                <p style="color: #555;">Toca la parte del cuerpo que te duele. **La IA clasificará la urgencia.**</p>
+                
+                <div style="text-align: center;">
+                    <div id="human-body-map">
+                        <div id="map-head" class="realistic-part" data-problem="Cabeza/Cerebro" data-symptoms="Fiebre Alta,Dolor Pulsante,Rigidez de Cuello,Vómitos">Cabeza</div>
+                        <div id="map-chest" class="realistic-part" data-problem="Pecho/Tórax" data-symptoms="Dolor Agudo,Dificultad Respiratoria,Palpitaciones,Tos Persistente">Pecho</div>
+                        <div id="map-abdomen" class="realistic-part" data-problem="Abdomen/Estómago" data-symptoms="Dolor Fuerte,Vómitos/Diarrea,Sangre en Heces,Dolor al Orinar">Abdomen</div>
+                        <div id="map-lower-body" class="realistic-part" data-problem="Espalda/Cadera" data-symptoms="Dolor Lumbar,Inmovilidad,Golpe Fuerte">Cadera</div>
+                        
+                        <div id="map-arm-r" class="realistic-part" data-problem="Brazo/Hombro" data-symptoms="Sangrado Incontrolable,Deformidad/Fractura,Hinchazón Grave,Dolor al Mover">Brazo D</div>
+                        <div id="map-arm-l" class="realistic-part" data-problem="Brazo/Hombro" data-symptoms="Sangrado Incontrolable,Deformidad/Fractura,Hinchazón Grave,Dolor al Mover">Brazo I</div>
+                        <div id="map-hand-r" class="realistic-part" data-problem="Mano/Muñeca" data-symptoms="Sangrado Incontrolable,Deformidad/Fractura,Hinchazón Grave,Dolor al Mover">Mano D</div>
+                        <div id="map-hand-l" class="realistic-part" data-problem="Mano/Muñeca" data-symptoms="Sangrado Incontrolable,Deformidad/Fractura,Hinchazón Grave,Dolor al Mover">Mano I</div>
+
+                        <div id="map-leg-r" class="realistic-part" data-problem="Pierna/Rodilla" data-symptoms="Sangrado Incontrolable,Deformidad/Fractura,Hinchazón Grave,Dolor al Mover">Pierna D</div>
+                        <div id="map-leg-l" class="realistic-part" data-problem="Pierna/Rodilla" data-symptoms="Sangrado Incontrolable,Deformidad/Fractura,Hinchazón Grave,Dolor al Mover">Pierna I</div>
+                        <div id="map-foot-r" class="realistic-part" data-problem="Pie/Tobillo" data-symptoms="Sangrado Incontrolable,Deformidad/Fractura,Hinchazón Grave,Dolor al Mover">Pie D</div>
+                        <div id="map-foot-l" class="realistic-part" data-problem="Pie/Tobillo" data-symptoms="Sangrado Incontrolable,Deformidad/Fractura,Hinchazón Grave,Dolor al Mover">Pie I</div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Paso 2: Intensidad del Dolor</h3>
+                <p style="color: #555;">Evalúa tu dolor en la escala (0-10).</p>
+                <div class="pain-scale">
+                    <input type="range" id="pain-level" min="0" max="10" value="0" style="width: 100%;">
+                    <label for="pain-level">Nivel de Dolor Reportado:</label>
+                    <div id="pain-level-value">0 - Sin dolor</div>
+                </div>
+            </div>
+            <button class="btn-action" id="map-selection-done" disabled>Confirmar Zona y Dolor</button>
+        </div>
+
+        <div id="symptom-screen" class="screen">
+            <div class="card">
+                <h3>Paso 3: Síntomas Específicos</h3>
+                <p>Selecciona los síntomas que presentas en la zona de <strong id="current-problem-name"></strong>.</p>
+                <div id="symptom-checkboxes" class="symptom-checkboxes">
+                    </div>
+                <button class="btn-action" id="start-chat-from-symptoms" style="background-color: #ff6e40; margin-top: 20px;">Analizar con IA y Recibir Recomendación</button>
+            </div>
+        </div>
+
+        <div id="chat-screen" class="screen">
+            <h3>💬 Resultado del Triaje IA</h3>
+            <div id="chat-conversation">
+                <div class="message ia-message">
+                    <p>🤖 Iniciando protocolo de diagnóstico...</p>
+                </div>
+            </div>
+            <button class="btn-action" style="background-color: #007bff;" onclick="showScreen('triaje-screen')">Reiniciar Triaje</button>
+        </div>
+
+        <div id="first-aid-screen" class="screen">
+            <h3>⛑️ Protocolo Gráfico de Auxilios</h3>
+            <div id="aid-guide">
+                <div class="card content-card first-aid-step">
+                    <h4>1. Evaluación y Seguridad 🚨</h4>
+                    <p>Verifica si el corte es grave (sangrado que no se detiene). ¡Si es grave, activa PÁNICO o ve a la guardia!</p>
+                </div>
+                <div class="card content-card first-aid-step">
+                    <h4>2. Detener el Sangrado ✋</h4>
+                    <p>Aplica presión directa firme con una gasa estéril o un paño limpio. 
+
+[Image of applying pressure to a bleeding wound]
+</p>
+                </div>
+                <div class="card content-card first-aid-step">
+                    <h4>3. Limpieza de la Herida 🚿</h4>
+                    <p>Lava suavemente con abundante agua y jabón para eliminar gérmenes. 
+
+[Image of cleaning a wound with water and soap]
+</p>
+                </div>
+                <div class="card content-card first-aid-step">
+                    <h4>4. Protección y Vendaje ✅</h4>
+                    <p>Cubre el corte con una venda estéril o usa un vendaje elástico para aplicar presión y soporte. 
+
+[Image of bandaging a small wound]
+</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="videos-screen" class="screen">
+            <h3>▶️ Biblioteca de Salud y Autocuidado</h3>
+            <div id="video-list">
+                <div class="video-card" onclick="alert('Simulación: Reproduciendo Video de Manejo de Fiebre')">
+                    <div class="video-thumbnail">
+                        <span class="play-icon">▶️</span>
+                    </div>
+                    <div class="video-details">
+                        <h4>Manejo de la Fiebre en Adultos 🌡️</h4>
+                        <p>Cuándo es seguro manejar la fiebre en casa y cuándo consultar al CAP.</p>
+                    </div>
+                </div>
+                <div class="video-card" onclick="alert('Simulación: Reproduciendo Video de Prevención de Infecciones')">
+                    <div class="video-thumbnail">
+                        <span class="play-icon">▶️</span>
+                    </div>
+                    <div class="video-details">
+                        <h4>Prevención de Infecciones Estacionales 🤧</h4>
+                        <p>Consejos rápidos sobre higiene y cuándo acudir al CAP por un resfrío.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div> <div id="location-screen" class="screen">
+        <div style="padding-top: 50px;">
+            <h3>🔴 ALERTA DE EMERGENCIA</h3>
+            <p style="font-size: 1.1em; font-weight: 500;">**Protocolo SAMeR (107) iniciado.** Su vida es la prioridad.</p>
+        </div>
+        
+        <div id="location-data">
+            <h4 style="font-size: 1.2em;">⚠️ ¡MANTENGA LA PANTALLA ABIERTA!</h4>
+            <p>Estado GPS: <span id="location-status">Buscando ubicación...</span></p>
+            <p style="font-size: 0.9em;">(Lat: <span id="lat-data">N/A</span>, Lon: <span id="lon-data">N/A</span>)</p>
+        </div>
+        
+        <button onclick="showScreen('triaje-screen')">Cerrar Alerta (SOLO SI LLEGÓ LA AYUDA)</button>
+    </div>
+
+    <div class="app-footer">
+        <div class="footer-icon active" data-target="triaje-screen">📍 Triaje</div>
+        <div class="footer-icon" data-target="chat-screen">💬 Resultado</div>
+        <div class="footer-icon" data-target="first-aid-screen">⛑️ Auxilios</div>
+        <div class="footer-icon" data-target="videos-screen">▶️ Videos</div>
+    </div>
+</div>
+
+<script>
+    let currentProblem = '';
+    let painLevel = 0;
+    let selectedSymptoms = [];
+
+    $(document).ready(function() {
+        showScreen('triaje-screen');
+
+        // FUNCIÓN CLAVE: Asigna el evento click al botón de pánico
+        $('#panic-button').on('click', function() {
+            showScreen('location-screen'); 
+            reportLocation();
+        });
+
+
+        // Manejar el clic en las partes del cuerpo
+        $('.realistic-part').on('click', function() {
+            $('.realistic-part').removeClass('selected');
+            $(this).addClass('selected');
+            currentProblem = $(this).data('problem');
+            // Habilita el botón de continuar cuando se selecciona una parte del cuerpo
+            $('#map-selection-done').prop('disabled', false).text(`Confirmar Zona: ${currentProblem.split('/')[0]}`);
+        });
+
+        // Manejar el cambio en la escala de dolor
+        $('#pain-level').on('input', function() {
+            painLevel = parseInt($(this).val());
+            let label = '';
+            if (painLevel === 0) label = '0 - Sin dolor';
+            else if (painLevel <= 3) label = `${painLevel} - Leve (CAP)`;
+            else if (painLevel <= 7) label = `${painLevel} - Moderado (CAP/Guardia)`;
+            else label = `${painLevel} - Severo (Guardia)`;
+            
+            $('#pain-level-value').text(label);
+        });
+
+        // **MANEJADOR CORREGIDO:** Botón para pasar a la selección de síntomas (Paso 1 -> Paso 2)
+        $('#map-selection-done').on('click', function() {
+            if (!currentProblem) return;
+            
+            const symptoms = $('.realistic-part.selected').data('symptoms').split(',');
+            $('#current-problem-name').text(currentProblem.split('/')[0]);
+            $('#symptom-checkboxes').empty();
+            
+            symptoms.forEach(s => {
+                $('#symptom-checkboxes').append(`
+                    <label>
+                        <input type="checkbox" name="symptom" value="${s.trim()}"> ${s.trim()}
+                    </label>
+                `);
+            });
+            showScreen('symptom-screen');
+        });
+
+
+        // Iniciar el chat desde la pantalla de síntomas (Paso 2 -> Paso 3)
+        $('#start-chat-from-symptoms').on('click', function() {
+            selectedSymptoms = [];
+            $('#symptom-checkboxes input:checked').each(function() {
+                selectedSymptoms.push($(this).val());
+            });
+            
+            showScreen('chat-screen');
+            startChatbotSimulation(currentProblem, painLevel, selectedSymptoms);
+        });
+
+        // Manejar la navegación del footer
+        $('.footer-icon').on('click', function() {
+            const target = $(this).data('target');
+            showScreen(target);
+        });
+    });
+
+    // Función para cambiar de pantalla (incluye actualización de título y footer)
+    function showScreen(screenId) {
+        $('.screen').hide();
+        $(`#${screenId}`).fadeIn(200);
+
+        const titleMap = {
+            'triaje-screen': 'HealthMate | Triaje Corporal',
+            'symptom-screen': 'HealthMate | Selección de Síntomas',
+            'chat-screen': 'HealthMate | Resultado IA',
+            'first-aid-screen': 'HealthMate | Guía de Auxilios',
+            'videos-screen': 'HealthMate | Biblioteca',
+            'location-screen': 'ALERTA DE EMERGENCIA'
+        };
+        $('#screen-title').text(titleMap[screenId] || 'HealthMate Rosario');
+
+        $('.footer-icon').removeClass('active');
+        $(`.footer-icon[data-target="${screenId}"]`).addClass('active');
+        
+        // Control de los elementos fijos: se ocultan todos en modo emergencia
+        if (screenId === 'location-screen') {
+            $('#panic-button').hide();
+            $('.app-footer').hide();
+            $('.app-header').hide();
+        } else {
+            $('#panic-button').show();
+            $('.app-footer').show();
+            $('.app-header').show();
+        }
+    }
+
+    // Lógica de Chatbot Conversacional (Resultado IA)
+    function startChatbotSimulation(problem, pain, symptoms) {
+        const chatContainer = $('#chat-conversation');
+        chatContainer.empty();
+        
+        chatContainer.append(`
+            <div class="message ia-message">
+                <p>🤖 **Procesando...** (Dolor ${pain}/10 en ${problem.split('/')[0]}).</p>
+                <p>Analizando signos de alarma...</p>
+            </div>
+        `);
+        
+        chatContainer.append(`
+            <div class="message user-message">
+                <p>🤔 ¿Cuál es mi riesgo? ¡Necesito instrucciones claras!</p>
+            </div>
+        `);
+        
+        // Lógica de Triaje
+        let advice = '';
+        let urgency = '';
+        let actionButton = '';
+        
+        const hasSevereSymptom = pain >= 8 || symptoms.includes('Sangrado Incontrolable') || symptoms.includes('Dificultad Respiratoria') || symptoms.includes('Dolor Agudo') || symptoms.includes('Rigidez de Cuello');
+        
+        if (hasSevereSymptom) {
+            urgency = '🚨 EMERGENCIA CRÍTICA: RIESGO DE VIDA';
+            advice = `**ACTÚE AHORA.** La IA dicta: **Guardia de Hospital INMEDIATAMENTE**. No conduzca si es dolor de pecho. Active PÁNICO si necesita que la ayuda llegue a su ubicación.`;
+            actionButton = '<button class="btn-action" style="background-color: #e53935;" onclick="showScreen(\'location-screen\'); reportLocation()">🚨 ACTIVAR ASISTENCIA (PÁNICO)</button>';
+        } else if (problem.includes('Deformidad/Fractura') || pain >= 6) {
+            urgency = '⚠️ URGENCIAS TRAUMÁTICAS: Guardia / Trauma Center.';
+            advice = `Ante posible fractura/dolor intenso, vaya a la **Guardia** para evaluación. Si es dolor articular leve, revise la guía.`;
+            actionButton = '<button class="btn-action" onclick="showScreen(\'first-aid-screen\')">Ver Protocolo de Inmovilización (Auxilios)</button>';
+        } else if (symptoms.length > 0 && pain <= 5) {
+            urgency = '🏥 CASO MODERADO: Centro de Atención Primaria (CAP).';
+            advice = `Sus síntomas son manejables en un **CAP**. Es la forma correcta de usar el sistema.`;
+            actionButton = '<button class="btn-action" onclick="showScreen(\'videos-screen\')">Ver Videos Educativos</button>';
+        } else {
+             urgency = '💚 AUTOCUIDADO: Monitoreo, luego CAP.';
+             advice = `Síntomas muy leves. Si empeora en 24h, acuda al **CAP**.`;
+             actionButton = '<button class="btn-action" onclick="showScreen(\'videos-screen\')">Ver Videos de Autocuidado</button>';
+        }
+        
+        // 3. Respuesta final del IA con el consejo
+        chatContainer.append(`
+            <div class="message ia-message">
+                <p style="font-size: 1.1em;">**CLASIFICACIÓN DE LA IA:** <span class="ia-advice">${urgency}</span></p>
+                <p>▶️ **ACCIÓN RECOMENDADA:** ${advice}</p>
+                ${actionButton ? `<div style="margin-top: 10px;">${actionButton}</div>` : ''}
+            </div>
+        `);
+
+        chatContainer.scrollTop(chatContainer[0].scrollHeight);
+    }
+
+    // Función para reportar ubicación (Geolocalización)
+    function reportLocation() {
+        $('#location-status').text('Buscando ubicación...');
+        $('#lat-data').text('N/A');
+        $('#lon-data').text('N/A');
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    
+                    $('#lat-data').text(lat.toFixed(6));
+                    $('#lon-data').text(lon.toFixed(6));
+                    $('#location-status').text('✅ UBICACIÓN ENVIADA: SAMeR/107 está en camino.');
+                }, 
+                function(error) {
+                    let errorMessage = '❌ ERROR CRÍTICO: Active el GPS y conceda permisos.';
+                    if (error.code === error.PERMISSION_DENIED) {
+                        errorMessage = '❌ Permiso denegado. Active el GPS manualmente.';
+                    }
+                    $('#location-status').text(errorMessage);
+                }
+            );
+        } else {
+            $('#location-status').text('❌ Geolocalización no compatible.');
+        }
+    }
+</script>
+
+</body>
+</html>
